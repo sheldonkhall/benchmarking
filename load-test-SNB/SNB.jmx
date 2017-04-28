@@ -14,22 +14,22 @@
           </elementProp>
           <elementProp name="PERSON_PATH" elementType="Argument">
             <stringProp name="Argument.name">PERSON_PATH</stringProp>
-            <stringProp name="Argument.value">${__P(person_path,/tmp/social_network/person_0_0.csv)}</stringProp>
+            <stringProp name="Argument.value">${__P(person_path,/tmp/person_0_0.csv)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="MESSAGE_PATH" elementType="Argument">
             <stringProp name="Argument.name">MESSAGE_PATH</stringProp>
-            <stringProp name="Argument.value">${__P(message_path,/tmp/social_network/comment_0_0.csv)}</stringProp>
+            <stringProp name="Argument.value">${__P(message_path,/tmp/comment_0_0.csv)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="FORUM_PATH" elementType="Argument">
             <stringProp name="Argument.name">FORUM_PATH</stringProp>
-            <stringProp name="Argument.value">${__P(forum_path,/tmp/social_network/forum_0_0.csv)}</stringProp>
+            <stringProp name="Argument.value">${__P(forum_path,/tmp/forum_0_0.csv)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="KEYSPACE" elementType="Argument">
             <stringProp name="Argument.name">KEYSPACE</stringProp>
-            <stringProp name="Argument.value">${__P(keyspace,snb_sf3_1)}</stringProp>
+            <stringProp name="Argument.value">${__P(keyspace,snb)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="NUM_THREADS" elementType="Argument">
