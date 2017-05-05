@@ -212,7 +212,7 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="query" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">match%20$person%20isa%20person%20has%20person-id%20${person_id};%20$message%20isa%20message;%20($person,%20$message)%20isa%20has-creator;%20$another-person%20isa%20person;%20($message,%20$another-person)%20isa%20likes;</stringProp>
+                  <stringProp name="Argument.value">match%20$person%20isa%20person%20has%20person-id%20${person_id};%20$message%20isa%20message;%20($person,%20$message)%20isa%20has-creator;%20$another-person%20isa%20person;%20($message,%20$another-person)%20isa%20likes;%20limit%2020;</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                   <boolProp name="HTTPArgument.use_equals">true</boolProp>
                   <stringProp name="Argument.name">query</stringProp>
