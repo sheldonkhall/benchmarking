@@ -7,11 +7,6 @@
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="HOSTNAME" elementType="Argument">
-            <stringProp name="Argument.name">HOSTNAME</stringProp>
-            <stringProp name="Argument.value">${__P(hostname,localhost)}</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
           <elementProp name="PERSON_PATH" elementType="Argument">
             <stringProp name="Argument.name">PERSON_PATH</stringProp>
             <stringProp name="Argument.value">${__P(person_path,/tmp/person_0_0.csv)}</stringProp>
@@ -45,6 +40,11 @@
           <elementProp name="DURATION" elementType="Argument">
             <stringProp name="Argument.name">DURATION</stringProp>
             <stringProp name="Argument.value">${__P(duration,10)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ENGINES_PATH" elementType="Argument">
+            <stringProp name="Argument.name">ENGINES_PATH</stringProp>
+            <stringProp name="Argument.value">${__P(engines_path,engines.csv)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -84,7 +84,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.domain">${engine}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -111,7 +111,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.domain">${engine}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -138,7 +138,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.domain">${engine}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -165,7 +165,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.domain">${engine}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -192,7 +192,7 @@
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.domain">${engine}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -212,14 +212,14 @@
               <collectionProp name="Arguments.arguments">
                 <elementProp name="query" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">match%20$person%20isa%20person%20has%20person-id%20${person_id};%20$message%20isa%20message;%20($person,%20$message)%20isa%20has-creator;%20$another-person%20isa%20person;%20($message,%20$another-person)%20isa%20likes;</stringProp>
+                  <stringProp name="Argument.value">match%20$person%20isa%20person%20has%20person-id%20${person_id};%20$message%20isa%20message;%20($person,%20$message)%20isa%20has-creator;%20$another-person%20isa%20person;%20($message,%20$another-person)%20isa%20likes;%20limit%2020;</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                   <boolProp name="HTTPArgument.use_equals">true</boolProp>
                   <stringProp name="Argument.name">query</stringProp>
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.domain">${engine}</stringProp>
             <stringProp name="HTTPSampler.port"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -262,7 +262,7 @@
             </elementProp>
           </collectionProp>
         </elementProp>
-        <stringProp name="HTTPSampler.domain">${HOSTNAME}</stringProp>
+        <stringProp name="HTTPSampler.domain"></stringProp>
         <stringProp name="HTTPSampler.port">4567</stringProp>
         <stringProp name="HTTPSampler.protocol"></stringProp>
         <stringProp name="HTTPSampler.contentEncoding"></stringProp>
@@ -314,6 +314,18 @@
         <boolProp name="quotedData">true</boolProp>
         <boolProp name="recycle">true</boolProp>
         <boolProp name="stopThread">true</boolProp>
+        <stringProp name="shareMode">shareMode.all</stringProp>
+      </CSVDataSet>
+      <hashTree/>
+      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="engines" enabled="true">
+        <stringProp name="filename">${ENGINES_PATH}</stringProp>
+        <stringProp name="fileEncoding"></stringProp>
+        <stringProp name="variableNames">engine</stringProp>
+        <boolProp name="ignoreFirstLine">false</boolProp>
+        <stringProp name="delimiter">,</stringProp>
+        <boolProp name="quotedData">false</boolProp>
+        <boolProp name="recycle">true</boolProp>
+        <boolProp name="stopThread">false</boolProp>
         <stringProp name="shareMode">shareMode.all</stringProp>
       </CSVDataSet>
       <hashTree/>
