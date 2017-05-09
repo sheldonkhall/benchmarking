@@ -24,7 +24,7 @@
           </elementProp>
           <elementProp name="KEYSPACE" elementType="Argument">
             <stringProp name="Argument.name">KEYSPACE</stringProp>
-            <stringProp name="Argument.value">${__P(keyspace,snb_sf3_1)}</stringProp>
+            <stringProp name="Argument.value">${__P(keyspace,snb_sf10_1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="NUM_THREADS" elementType="Argument">
@@ -40,6 +40,11 @@
           <elementProp name="DURATION" elementType="Argument">
             <stringProp name="Argument.name">DURATION</stringProp>
             <stringProp name="Argument.value">${__P(duration,300)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ENGINES_PATH" elementType="Argument">
+            <stringProp name="Argument.name">ENGINES_PATH</stringProp>
+            <stringProp name="Argument.value">${__P(engines_path,engines.csv)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -313,7 +318,7 @@
       </CSVDataSet>
       <hashTree/>
       <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="engines" enabled="true">
-        <stringProp name="filename">engines.csv</stringProp>
+        <stringProp name="filename">${ENGINES_PATH}</stringProp>
         <stringProp name="fileEncoding"></stringProp>
         <stringProp name="variableNames">engine</stringProp>
         <boolProp name="ignoreFirstLine">false</boolProp>
