@@ -24,22 +24,22 @@
           </elementProp>
           <elementProp name="KEYSPACE" elementType="Argument">
             <stringProp name="Argument.name">KEYSPACE</stringProp>
-            <stringProp name="Argument.value">${__P(keyspace,snb_sf10_1)}</stringProp>
+            <stringProp name="Argument.value">${__P(keyspace,snb)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="NUM_THREADS" elementType="Argument">
             <stringProp name="Argument.name">NUM_THREADS</stringProp>
-            <stringProp name="Argument.value">${__P(num_threads,300)}</stringProp>
+            <stringProp name="Argument.value">${__P(num_threads,10)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="STARTUP_TIME" elementType="Argument">
             <stringProp name="Argument.name">STARTUP_TIME</stringProp>
-            <stringProp name="Argument.value">${__P(startup_time,300)}</stringProp>
+            <stringProp name="Argument.value">${__P(startup_time,1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="DURATION" elementType="Argument">
             <stringProp name="Argument.name">DURATION</stringProp>
-            <stringProp name="Argument.value">${__P(duration,300)}</stringProp>
+            <stringProp name="Argument.value">${__P(duration,10)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="ENGINES_PATH" elementType="Argument">
