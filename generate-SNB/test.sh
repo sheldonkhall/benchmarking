@@ -5,6 +5,7 @@ SF1_DATA="/opt/grakn/data/snb-data-sf1.tar.gz"
 CSV_DATA="social_network"
 KEYSPACE="snb"
 ENGINE="localhost:4567"
+ACTIVE_TASKS="1000"
 
 # set script directory as working directory
 SCRIPTPATH=`cd "$(dirname "$0")" && pwd -P`
@@ -55,10 +56,10 @@ esac
 # migrate the data into Grakn
 
 # load ontology
-graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-1-resources.gql -r $1
-graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-2-relations.gql -r $1
-graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-3-entities.gql -r $1
-graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-4-rules.gql -r $1
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-1-resources.gql -r $ENGINE
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-2-relations.gql -r $ENGINE
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-3-entities.gql -r $ENGINE
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-4-rules.gql -r $ENGINE
 
 sed -i '' "1s/Comment.id|Comment.id/Comment.id|Message.id/" $DATA/comment_replyOf_comment_0_0.csv
 sed -i '' "1s/Person.id|Person.id/Person1.id|Person.id/" $DATA/person_knows_person_0_0.csv
@@ -73,8 +74,8 @@ do
         NUM_SPLIT=$(head -1 ${DATA}/${DATA_FILE} | tr -cd \| | wc -c)
         BATCH_SIZE=$(awk "BEGIN {print int(1000/${NUM_SPLIT})}")
 
-        echo $BATCH_SIZE
+        echo "Dynamic batch size: $BATCH_SIZE"
 
         tail -n +2 $DATA/${DATA_FILE} | wc -l
-        time migration.sh csv -s \| -t $GRAQL/${TEMPLATE_FILE} -i $DATA/${DATA_FILE} -k $KEYSPACE -u $1 -a ${3:-25} -b ${BATCH_SIZE}
+        time migration.sh csv -s \| -t $GRAQL/${TEMPLATE_FILE} -i $DATA/${DATA_FILE} -k $KEYSPACE -u $ENGINE -a ${ACTIVE_TASKS:-25} -b ${BATCH_SIZE}
 done < migrationsToRun.txt
