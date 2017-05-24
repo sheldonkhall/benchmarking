@@ -96,3 +96,14 @@ do
         tail -n +2 $DATA/${DATA_FILE} | wc -l
         time migration.sh csv -s \| -t $GRAQL/${TEMPLATE_FILE} -i $DATA/${DATA_FILE} -k $KEYSPACE -u $ENGINE -a ${ACTIVE_TASKS:-25} -b ${BATCH_SIZE}
 done < migrationsToRun.txt
+
+# confirm there were no errors
+
+FAILURES=$(curl -x http://$ENGINE/tasks?status=FAILED)
+if [ "$FAILURES" == "[]" ] then
+	echo "Load completed without failures."
+else
+	echo "There were failures during loading."
+	echo $FAILURES
+	exit 1
+fi
