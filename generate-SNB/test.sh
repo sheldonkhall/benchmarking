@@ -3,6 +3,13 @@
 VALIDATION_DATA="/opt/grakn/data/readwrite_neo4j--validation_set.tar.gz"
 SF1_DATA="/opt/grakn/data/snb-data-sf1.tar.gz"
 CSV_DATA="social_network"
+KEYSPACE="snb"
+ENGINE="localhost:4567"
+
+# set script directory as working directory
+SCRIPTPATH=`cd "$(dirname "$0")" && pwd -P`
+DATA=$SCRIPTPATH/./social_network
+GRAQL=$SCRIPTPATH/./graql
 
 # force script to exit on failed command
 set -e
@@ -13,10 +20,10 @@ if [ "$#" -lt "2" ]; then
 	exit 1
 fi
 
-# load the data from a tar
-function loadArchData {
+# extract the data from a tar
+function extractArchData {
+	mkdir -p $CSV_DATA
 	case "$1" in
-		mkdir -p $CSV_DATA
 		validate)
 			tar -xf $VALIDATION_DATA --strip=1 -C $CSV_DATA validation_set
 			;;
@@ -37,7 +44,7 @@ case "$1" in
 		exit 0
 		;;
 	arch)
-		loadArchData $2
+		extractArchData $2
 		;;
 	*)
 		echo "Usage: $0 {gen|arch}"
@@ -45,3 +52,29 @@ case "$1" in
 		;;
 esac
 
+# migrate the data into Grakn
+
+# load ontology
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-1-resources.gql -r $1
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-2-relations.gql -r $1
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-3-entities.gql -r $1
+graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-4-rules.gql -r $1
+
+sed -i '' "1s/Comment.id|Comment.id/Comment.id|Message.id/" $DATA/comment_replyOf_comment_0_0.csv
+sed -i '' "1s/Person.id|Person.id/Person1.id|Person.id/" $DATA/person_knows_person_0_0.csv
+sed -i '' "1s/Place.id|Place.id/Place1.id|Place.id/" $DATA/place_isPartOf_place_0_0.csv
+sed -i '' "1s/TagClass.id|TagClass.id/TagClass1.id|TagClass.id/" $DATA/tagclass_isSubclassOf_tagclass_0_0.csv
+
+while read p;
+do
+        DATA_FILE=$(echo $p | awk '{print $2}')
+        TEMPLATE_FILE=$(echo $p | awk '{print $1}')
+
+        NUM_SPLIT=$(head -1 ${DATA}/${DATA_FILE} | tr -cd \| | wc -c)
+        BATCH_SIZE=$(awk "BEGIN {print int(1000/${NUM_SPLIT})}")
+
+        echo $BATCH_SIZE
+
+        tail -n +2 $DATA/${DATA_FILE} | wc -l
+        time migration.sh csv -s \| -t $GRAQL/${TEMPLATE_FILE} -i $DATA/${DATA_FILE} -k $KEYSPACE -u $1 -a ${3:-25} -b ${BATCH_SIZE}
+done < migrationsToRun.txt
