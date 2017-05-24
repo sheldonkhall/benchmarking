@@ -6,6 +6,10 @@ CSV_DATA="social_network"
 KEYSPACE="snb"
 ENGINE="localhost:4567"
 ACTIVE_TASKS="1000"
+LDBC_JAR="/Users/sheldon/Repos/ldbc-snb/target/ldbc_snb_datagen-0.2.5-jar-with-dependencies.jar"
+HADOOP_HOME="/Users/sheldon/Repos/ldbc-snb/hadoop-2.6.0"
+
+export HADOOP_HOME
 
 # set script directory as working directory
 SCRIPTPATH=`cd "$(dirname "$0")" && pwd -P`
@@ -38,11 +42,25 @@ function extractArchData {
 	esac
 }
 
+# generate new data
+function generateData {
+	LDBC_SNB_DATAGEN_HOME=${LDBC_SNB_DATAGEN_HOME:-$DEFAULT_LDBC_SNB_DATAGEN_HOME}
+
+	export HADOOP_CLIENT_OPTS="-Xmx1024m"
+	$HADOOP_HOME/bin/hadoop jar $LDBC_JAR $SCRIPTPATH/params.ini
+
+	rm -f m*personFactors*
+	rm -f .m*personFactors*
+	rm -f m*activityFactors*
+	rm -f .m*activityFactors*
+	rm -f m0friendList*
+	rm -f .m0friendList*
+}
+
 # switch between generating data or using archive data
 case "$1" in
 	gen)
-		echo "Option gen not yet supported."
-		exit 0
+		generateData
 		;;
 	arch)
 		extractArchData $2
@@ -55,7 +73,6 @@ esac
 
 # migrate the data into Grakn
 
-# load ontology
 graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-1-resources.gql -r $ENGINE
 graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-2-relations.gql -r $ENGINE
 graql.sh -k $KEYSPACE -f $GRAQL/ldbc-snb-3-entities.gql -r $ENGINE
