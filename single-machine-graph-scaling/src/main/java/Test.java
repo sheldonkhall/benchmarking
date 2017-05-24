@@ -2,7 +2,7 @@ import ai.grakn.Grakn;
 import ai.grakn.GraknGraph;
 import ai.grakn.GraknSession;
 import ai.grakn.GraknTxType;
-import ai.grakn.client.LoaderClient;
+import ai.grakn.client.BatchMutatorClient;
 import ai.grakn.concept.ConceptId;
 import ai.grakn.concept.EntityType;
 import ai.grakn.concept.ResourceType;
@@ -29,7 +29,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static ai.grakn.graql.Graql.count;
 import static ai.grakn.graql.Graql.insert;
+import static ai.grakn.graql.Graql.match;
 import static ai.grakn.graql.Graql.var;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -44,7 +46,7 @@ public class Test {
 
     // test parameters
     final int NUM_SUPER_NODES = 10; // the number of supernodes to generate in the test graph
-    final int MAX_SIZE = 100000; // the maximum number of non super nodes to add to the test graph
+    final int MAX_SIZE = 100; // the maximum number of non super nodes to add to the test graph
     final int NUM_DIVS = 4; // the number of divisions of the MAX_SIZE to use in the scaling test
     final int REPEAT = 3; // the number of times to repeat at each size for average runtimes
     final int MAX_WORKERS = Runtime.getRuntime().availableProcessors(); // the maximum number of workers that spark should use
@@ -82,6 +84,8 @@ public class Test {
     public void countIT() throws IOException {
         CSVPrinter printer = createCSVPrinter("countIT.txt");
         String keyspace = randomKeyspace();
+        Set<String> superNodes;
+        Long emptyCount;
 
         try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
 
@@ -89,62 +93,76 @@ public class Test {
             simpleOntology(session);
 
             // get a count before adding any data
-            Long emptyCount;
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
                 emptyCount = graph.admin().getTinkerTraversal().count().next();
                 System.out.println("gremlin count before data is: " + emptyCount);
             }
 
-            Set<String> superNodes = makeSuperNodes(session);
+            superNodes = makeSuperNodes(session);
+        }
 
-            int previousGraphSize = 0;
-            for (int graphSize : graphSizes) {
-                System.out.println("current scale - super " + NUM_SUPER_NODES + " - nodes " + graphSize);
-                Long conceptCount = (long) (NUM_SUPER_NODES * (graphSize + 1) + graphSize);
-                printer.print(String.valueOf(conceptCount));
+        int previousGraphSize = 0;
+        for (int graphSize : graphSizes) {
+            System.out.println("current scale - super " + NUM_SUPER_NODES + " - nodes " + graphSize);
+            Long conceptCount = (long) (NUM_SUPER_NODES * (graphSize + 1) + graphSize);
+            printer.print(String.valueOf(conceptCount));
 
-                System.out.println("start generate graph " + System.currentTimeMillis() / 1000L + "s");
-                addNodesToSuperNodes(keyspace, superNodes, previousGraphSize, graphSize);
-                previousGraphSize = graphSize;
-                System.out.println("stop generate graph " + System.currentTimeMillis() / 1000L + "s");
+            System.out.println("start generate graph " + System.currentTimeMillis() / 1000L + "s");
+            addNodesToSuperNodes(keyspace, superNodes, previousGraphSize, graphSize);
+            previousGraphSize = graphSize;
+            System.out.println("stop generate graph " + System.currentTimeMillis() / 1000L + "s");
 
-                Long gremlinCount = (long) (NUM_SUPER_NODES * (3 * graphSize + 1) + graphSize);
+            Long gremlinCount = (long) (NUM_SUPER_NODES * (3 * graphSize + 1) + graphSize);
+            try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
                 try (GraknGraph graph = session.open(GraknTxType.READ)) {
                     System.out.println("gremlin count is: " +
                             graph.admin().getTinkerTraversal().count().next());
                 }
-                gremlinCount += emptyCount;
-                System.out.println("expected gremlin count is: " + gremlinCount);
+            }
+            gremlinCount += emptyCount;
+            System.out.println("expected gremlin count is: " + gremlinCount);
 
-                for (int workerNumber : workerNumbers) {
-                    System.out.println("Setting number of workers to: " + workerNumber);
+            for (int workerNumber : workerNumbers) {
+                System.out.println("Setting number of workers to: " + workerNumber);
 
-                    Long countTime = 0L;
+                Long countTime = 0L;
 
-                    for (int i = 0; i < REPEAT; i++) {
-                        System.out.println("repeat number: " + i);
-                        Long startTime = System.currentTimeMillis();
+                for (int i = 0; i < REPEAT; i++) {
+                    System.out.println("repeat number: " + i);
+                    Long startTime = System.currentTimeMillis();
+                    try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
                         try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                            Long count = getCountQuery(graph, workerNumber).execute();
-                            assert conceptCount == count;
+                            System.out.println(match(var().isa("thing")).aggregate(count()).withGraph(graph).execute());
+                        }
+                    }
+                    try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
+                        try (GraknGraph graph = session.open(GraknTxType.READ)) {
+//                            Long count = getCountQuery(graph, workerNumber).execute();
+                            Long count = graph.graql().compute().count().execute();
+                            if (!conceptCount.equals(count)) {
+                                throw new RuntimeException(
+                                        "The concept count should be: "
+                                                +String.valueOf(conceptCount)
+                                                +" but is "+String.valueOf(count)+" instead.");
+                            }
                             System.out.println("count: " + count);
                         }
-                        Long stopTime = System.currentTimeMillis();
-                        countTime += stopTime - startTime;
-                        System.out.println("count time: " + countTime / ((i + 1) * 1000));
                     }
-
-                    countTime /= REPEAT * 1000;
-                    System.out.println("time to count: " + countTime);
-                    printer.print(String.valueOf(countTime));
+                    Long stopTime = System.currentTimeMillis();
+                    countTime += stopTime - startTime;
+                    System.out.println("count time: " + countTime / ((i + 1) * 1000));
                 }
-                printer.println();
-                printer.flush();
-            }
 
+                countTime /= REPEAT * 1000;
+                System.out.println("time to count: " + countTime);
+                printer.print(String.valueOf(countTime));
+            }
+            printer.println();
             printer.flush();
-            printer.close();
         }
+
+        printer.flush();
+        printer.close();
     }
 
     /**
@@ -223,7 +241,7 @@ public class Test {
 //        // create the ontology
 //        simpleOntology(keyspace);
 //
-//        LoaderClient loader = new LoaderClient(Grakn.DEFAULT_URI, keyspace);
+//        BatchMutatorClient loader = new BatchMutatorClient(Grakn.DEFAULT_URI, keyspace);
 //
 //        for (int g=1; g<totalSteps+1; g++) {
 //            System.out.println("starting step: " + g);
@@ -360,7 +378,7 @@ public class Test {
 
     private void addNodesToSuperNodes(String keyspace, Set<String> superNodes, int startRange, int endRange) {
         // batch in the nodes
-        LoaderClient loader = new LoaderClient(keyspace, engineHostname);
+        BatchMutatorClient loader = new BatchMutatorClient(keyspace, engineHostname);
         loader.setNumberActiveTasks(1000);
         loader.setBatchSize(100);
 
