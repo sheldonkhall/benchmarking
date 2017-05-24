@@ -99,8 +99,8 @@ done < migrationsToRun.txt
 
 # confirm there were no errors
 
-FAILURES=$(curl -x http://$ENGINE/tasks?status=FAILED)
-if [ "$FAILURES" == "[]" ] then
+FAILURES=$(curl http://$ENGINE/tasks?status=FAILED)
+if [ "$FAILURES" == "[]" ]; then
 	echo "Load completed without failures."
 else
 	echo "There were failures during loading."
