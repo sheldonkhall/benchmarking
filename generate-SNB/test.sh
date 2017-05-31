@@ -46,9 +46,27 @@ function extractArchData {
 function generateData {
 	LDBC_SNB_DATAGEN_HOME=${LDBC_SNB_DATAGEN_HOME:-$DEFAULT_LDBC_SNB_DATAGEN_HOME}
 
-	export HADOOP_CLIENT_OPTS="-Xmx1024m"
-	$HADOOP_HOME/bin/hadoop jar $LDBC_JAR $SCRIPTPATH/params.ini
+	paramFile=tmpParams.ini
+	cat params.ini > $paramFile
 
+	case "$1" in
+		SF*)
+
+			echo "ldbc.snb.datagen.generator.scaleFactor:snb.interactive.${1:2:4}" >> $paramFile
+			;;
+		P*)
+			echo "ldbc.snb.datagen.generator.numPersons:${1:1:6}" >> $paramFile
+			;;
+		*)
+			echo "Usage: gen {SF*|P*}"
+			exit 1
+			;;
+	esac
+
+	export HADOOP_CLIENT_OPTS="-Xmx1024m"
+	$HADOOP_HOME/bin/hadoop jar $LDBC_JAR $SCRIPTPATH/$paramFile
+
+	rm $paramFile
 	rm -f m*personFactors*
 	rm -f .m*personFactors*
 	rm -f m*activityFactors*
@@ -60,7 +78,7 @@ function generateData {
 # switch between generating data or using archive data
 case "$1" in
 	gen)
-		generateData
+		generateData $2
 		;;
 	arch)
 		extractArchData $2
