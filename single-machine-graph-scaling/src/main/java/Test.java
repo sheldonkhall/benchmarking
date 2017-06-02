@@ -8,7 +8,7 @@ import ai.grakn.concept.EntityType;
 import ai.grakn.concept.ResourceType;
 import ai.grakn.concept.RoleType;
 import ai.grakn.graql.QueryBuilderImplMock;
-import ai.grakn.graql.Var;
+import ai.grakn.graql.VarPattern;
 import ai.grakn.graql.internal.query.ComputeQueryBuilderImplMock;
 import ai.grakn.graql.internal.query.analytics.CountQueryImplMock;
 import ai.grakn.graql.internal.query.analytics.MaxQueryImplMock;
@@ -383,7 +383,7 @@ public class Test {
         loader.setBatchSize(100);
 
         for (int nodeIndex = startRange; nodeIndex < endRange; nodeIndex++) {
-            List<Var> insertQuery = new ArrayList<>();
+            List<VarPattern> insertQuery = new ArrayList<>();
             insertQuery.add(var("node"+String.valueOf(nodeIndex)).isa("thing"));
             for (String supernodeId : superNodes) {
                 insertQuery.add(var(supernodeId).id(ConceptId.of(supernodeId)));
