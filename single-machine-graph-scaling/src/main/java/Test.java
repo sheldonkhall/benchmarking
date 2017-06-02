@@ -7,6 +7,7 @@ import ai.grakn.concept.ConceptId;
 import ai.grakn.concept.EntityType;
 import ai.grakn.concept.ResourceType;
 import ai.grakn.concept.RoleType;
+import ai.grakn.graph.internal.computer.GraknSparkComputer;
 import ai.grakn.graql.QueryBuilderImplMock;
 import ai.grakn.graql.VarPattern;
 import ai.grakn.graql.internal.query.ComputeQueryBuilderImplMock;
@@ -29,9 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ai.grakn.graql.Graql.count;
 import static ai.grakn.graql.Graql.insert;
-import static ai.grakn.graql.Graql.match;
 import static ai.grakn.graql.Graql.var;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -46,7 +45,7 @@ public class Test {
 
     // test parameters
     final int NUM_SUPER_NODES = 10; // the number of supernodes to generate in the test graph
-    final int MAX_SIZE = 100; // the maximum number of non super nodes to add to the test graph
+    final int MAX_SIZE = 10000; // the maximum number of non super nodes to add to the test graph
     final int NUM_DIVS = 4; // the number of divisions of the MAX_SIZE to use in the scaling test
     final int REPEAT = 3; // the number of times to repeat at each size for average runtimes
     final int MAX_WORKERS = Runtime.getRuntime().availableProcessors(); // the maximum number of workers that spark should use
@@ -132,13 +131,8 @@ public class Test {
                     Long startTime = System.currentTimeMillis();
                     try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
                         try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                            System.out.println(match(var().isa("thing")).aggregate(count()).withGraph(graph).execute());
-                        }
-                    }
-                    try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
-                        try (GraknGraph graph = session.open(GraknTxType.READ)) {
-//                            Long count = getCountQuery(graph, workerNumber).execute();
-                            Long count = graph.graql().compute().count().execute();
+                            GraknSparkComputer.refresh();
+                            Long count = getCountQuery(graph, workerNumber).execute();
                             if (!conceptCount.equals(count)) {
                                 throw new RuntimeException(
                                         "The concept count should be: "
@@ -150,7 +144,7 @@ public class Test {
                     }
                     Long stopTime = System.currentTimeMillis();
                     countTime += stopTime - startTime;
-                    System.out.println("count time: " + countTime / ((i + 1) * 1000));
+                    System.out.println("count time: " + (stopTime - startTime)/1000);
                 }
 
                 countTime /= REPEAT * 1000;

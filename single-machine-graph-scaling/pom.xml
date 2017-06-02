@@ -20,6 +20,14 @@
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.servicemix.bundles</groupId>
                     <artifactId>org.apache.servicemix.bundles.commons-csv</artifactId>
                 </exclusion>
@@ -29,6 +37,11 @@
             <groupId>ai.grakn</groupId>
             <artifactId>grakn-client</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.20</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -61,7 +74,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>single-machine-graph-scaling.Main</mainClass>
+                            <mainClass>Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -95,7 +108,7 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>analytics.Main</Main-Class>
+                                        <Main-Class>Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
