@@ -1,6 +1,7 @@
 node('agent') {
     checkout scm
     stage ('Build Grakn') {
+        sh 'ls -la'
         sh 'npm config set registry http://registry.npmjs.org/'
         sh 'rm -rf grakn && git clone https://github.com/graknlabs/grakn/'
         sh 'cd grakn && git checkout stable'
