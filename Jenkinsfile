@@ -7,8 +7,7 @@ node('agent') {
     }
     stage ('Init Grakn') {
         sh 'tar -xf grakn/grakn-dist/target/grakn-dist*.tar.gz'
-        sh 'cd grakn-dist*'
-        sh 'bin/grakn.sh start'
+        sh 'cd grakn-dist* && bin/grakn.sh start'
     }
     stage('Build') {
         sh 'mvn --version'
