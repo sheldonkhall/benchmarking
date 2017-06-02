@@ -45,7 +45,7 @@ public class Test {
 
     // test parameters
     final int NUM_SUPER_NODES = 10; // the number of supernodes to generate in the test graph
-    final int MAX_SIZE = 10000; // the maximum number of non super nodes to add to the test graph
+    final int MAX_SIZE = 1000000; // the maximum number of non super nodes to add to the test graph
     final int NUM_DIVS = 4; // the number of divisions of the MAX_SIZE to use in the scaling test
     final int REPEAT = 3; // the number of times to repeat at each size for average runtimes
     final int MAX_WORKERS = Runtime.getRuntime().availableProcessors(); // the maximum number of workers that spark should use
@@ -121,35 +121,36 @@ public class Test {
             gremlinCount += emptyCount;
             System.out.println("expected gremlin count is: " + gremlinCount);
 
-            for (int workerNumber : workerNumbers) {
-                System.out.println("Setting number of workers to: " + workerNumber);
+            try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
+                for (int workerNumber : workerNumbers) {
+                    System.out.println("Setting number of workers to: " + workerNumber);
 
-                Long countTime = 0L;
+                    Long countTime = 0L;
+                    // close the spark context when changing spark configs
+                    GraknSparkComputer.refresh();
 
-                for (int i = 0; i < REPEAT; i++) {
-                    System.out.println("repeat number: " + i);
-                    Long startTime = System.currentTimeMillis();
-                    try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
+                    for (int i = 0; i < REPEAT; i++) {
+                        System.out.println("repeat number: " + i);
+                        Long startTime = System.currentTimeMillis();
                         try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                            GraknSparkComputer.refresh();
                             Long count = getCountQuery(graph, workerNumber).execute();
                             if (!conceptCount.equals(count)) {
                                 throw new RuntimeException(
                                         "The concept count should be: "
-                                                +String.valueOf(conceptCount)
-                                                +" but is "+String.valueOf(count)+" instead.");
+                                                + String.valueOf(conceptCount)
+                                                + " but is " + String.valueOf(count) + " instead.");
                             }
                             System.out.println("count: " + count);
                         }
+                        Long stopTime = System.currentTimeMillis();
+                        countTime += stopTime - startTime;
+                        System.out.println("count time: " + (stopTime - startTime) / 1000);
                     }
-                    Long stopTime = System.currentTimeMillis();
-                    countTime += stopTime - startTime;
-                    System.out.println("count time: " + (stopTime - startTime)/1000);
-                }
 
-                countTime /= REPEAT * 1000;
-                System.out.println("time to count: " + countTime);
-                printer.print(String.valueOf(countTime));
+                    countTime /= REPEAT * 1000;
+                    System.out.println("time to count: " + countTime);
+                    printer.print(String.valueOf(countTime));
+                }
             }
             printer.println();
             printer.flush();

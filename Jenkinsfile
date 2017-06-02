@@ -3,6 +3,7 @@ node('agent') {
     stage ('Build Grakn') {
         sh 'npm config set registry http://registry.npmjs.org/'
         sh 'rm -rf grakn/ && git clone https://github.com/graknlabs/grakn/'
+        sh 'git checkout stable'
         sh 'cd grakn && mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
     }
     stage ('Init Grakn') {
