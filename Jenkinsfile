@@ -1,5 +1,6 @@
 node('agent') {
     checkout scm
+    try {
     stage ('Build Grakn') {
         sh 'ls -la'
         sh 'npm config set registry http://registry.npmjs.org/'
@@ -15,11 +16,11 @@ node('agent') {
         sh 'cd single-machine-graph-scaling && mvn clean package'
 	sh 'java -jar single-machine-graph-scaling/target/single-machine-graph-scaling-0.13.0-SNAPSHOT-allinone.jar'
     }
-    post {
-	always {
+    } finally {
+    stage('Tear Down') {
             sh 'cd grakn-dist* && bin/grakn.sh stop'
 	    sh 'rm -rf grakn'
             sh 'rm -rf grakn-dist*'
-        }
+    }
     }
 }
