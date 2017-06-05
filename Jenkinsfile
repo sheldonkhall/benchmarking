@@ -1,4 +1,4 @@
-node('slave1-dev-jenkins') {
+node('slave2-dev-jenkins') {
     checkout scm
     try {
     stage ('Build Grakn') {
