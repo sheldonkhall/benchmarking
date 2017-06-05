@@ -1,4 +1,4 @@
-node('agent') {
+node('slave1-dev-jenkins') {
     checkout scm
     try {
     stage ('Build Grakn') {
