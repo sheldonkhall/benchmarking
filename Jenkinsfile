@@ -31,9 +31,9 @@ node('slave2-dev-jenkins') {
             'LDBC_DRIVER=/home/jenkins/ldbc_driver/target/jeeves-0.3-SNAPSHOT.jar',
             'LDBC_CONNECTOR=impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
             'LDBC_VALIDATION_CONFIG=readwrite_grakn--ldbc_driver_config--db_validation.properties']) {
-//        stage('Load Validation Data') {
-//            sh 'cd generate-SNB && ./load-SNB.sh arch validate'
-//        }
+        stage('Load Validation Data') {
+            sh 'cd generate-SNB && ./load-SNB.sh arch validate'
+        }
         stage('Validate Graph') {
             sh 'cd validate-SNB && ./validate.sh'
         }
