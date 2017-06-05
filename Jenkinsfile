@@ -16,7 +16,7 @@ node('slave2-dev-jenkins') {
 	//sh 'java -jar single-machine-graph-scaling/target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
     }
     stage('Build LDBC Connector') {
-        sh 'cd impls-SNB && mvn clean install assembly:single'
+        sh 'cd impls-SNB && mvn clean -U install assembly:single'
     }
     withEnv(['VALIDATION_DATA=/home/jenkins/readwrite_neo4j--validation_set.tar.gz',
             'SF1_DATA=snb-data-sf1.tar.gz',
@@ -28,7 +28,7 @@ node('slave2-dev-jenkins') {
             'HADOOP_HOME=/home/jenkins/hadoop-2.6.0',
             'PATH+EXTRA=/home/jenkins/grakn-dist-0.14.0-SNAPSHOT/bin',
             'LDBC_DRIVER=/home/jenkins/ldbc_driver/target/jeeves-0.3-SNAPSHOT.jar',
-            'LDBC_CONNECTOR=impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
+            'LDBC_CONNECTOR=$WORKSPACE/impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
             'LDBC_VALIDATION_CONFIG=readwrite_grakn--ldbc_driver_config--db_validation.properties']) {
 //        stage('Load Validation Data') {
 //            sh 'cd generate-SNB && ./load-SNB.sh arch validate'
