@@ -22,7 +22,8 @@ node('agent') {
             'ENGINE=localhost:4567',
             'ACTIVE_TASKS=1000',
             'LDBC_JAR=ldbc-snb/target/ldbc_snb_datagen-0.2.5-jar-with-dependencies.jar',
-            'HADOOP_HOME=/home/jenkins/hadoop-2.6.0']) {
+            'HADOOP_HOME=/home/jenkins/hadoop-2.6.0',
+            'PATH=:/home/jenkins/grakn-dist-0.14.0-SNAPSHOT/bin:$PATH']) {
         stage('Load Validation Data') {
             sh 'cd generate-SNB && ./load-SNB.sh arch validate'
         }
