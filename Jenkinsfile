@@ -1,6 +1,7 @@
 node('slave2-dev-jenkins') {
     checkout scm
     try {
+    def workspace = pwd()
     stage ('Build Grakn') {
         //sh 'npm config set registry http://registry.npmjs.org/'
         //sh 'rm -rf grakn && git clone https://github.com/graknlabs/grakn/'
@@ -28,12 +29,13 @@ node('slave2-dev-jenkins') {
             'HADOOP_HOME=/home/jenkins/hadoop-2.6.0',
             'PATH+EXTRA=/home/jenkins/grakn-dist-0.14.0-SNAPSHOT/bin',
             'LDBC_DRIVER=/home/jenkins/ldbc_driver/target/jeeves-0.3-SNAPSHOT.jar',
-            'LDBC_CONNECTOR=$WORKSPACE/impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
+            'LDBC_CONNECTOR=${workspace}/impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
             'LDBC_VALIDATION_CONFIG=readwrite_grakn--ldbc_driver_config--db_validation.properties']) {
 //        stage('Load Validation Data') {
 //            sh 'cd generate-SNB && ./load-SNB.sh arch validate'
 //        }
         stage('Validate Graph') {
+            sh 'echo $LDBC_CONNECTOR'
             sh 'cd validate-SNB && ./validate.sh'
         }
     }
