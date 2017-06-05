@@ -1,4 +1,4 @@
-package net.ellitron.ldbcsnbimpls.interactive.grakn;
+package ai.grakn;
 
 import ai.grakn.Grakn;
 import ai.grakn.GraknGraph;

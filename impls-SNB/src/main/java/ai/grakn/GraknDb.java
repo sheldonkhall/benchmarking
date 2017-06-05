@@ -1,4 +1,4 @@
-package net.ellitron.ldbcsnbimpls.interactive.grakn;
+package ai.grakn;
 
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbConnectionState;
@@ -36,9 +36,6 @@ public class GraknDb extends Db {
         registerOperationHandler(LdbcUpdate6AddPost.class, GraknUpdateQueryHandlers.LdbcUpdate6AddPostHandler.class);
         registerOperationHandler(LdbcUpdate7AddComment.class, GraknUpdateQueryHandlers.LdbcUpdate7AddCommentHandler.class);
         registerOperationHandler(LdbcUpdate8AddFriendship.class, GraknUpdateQueryHandlers.LdbcUpdate8AddFriendshipHandler.class);
-
-        // added some mutations (delete -> insert)
-//        registerOperationHandler(LdbcShortQuery3PersonFriends.class, GraknMutateQueryHandlers.LdbcShortQuery3PersonFriendsHandler.class);
 
     }
 
