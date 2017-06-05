@@ -3,7 +3,7 @@
 set -e
 
 # execute validation
-java -cp $LDBC_DRIVER:$LDBC_CONNECTOR com.ldbc.driver.Client -db ai.grakn.GraknDb -P $LDBC_VALIDATION_CONFIG
+java -cp $LDBC_DRIVER:$WORKSPACE/$LDBC_CONNECTOR com.ldbc.driver.Client -db ai.grakn.GraknDb -P $LDBC_VALIDATION_CONFIG
 
 # check for errors from Grakn
 FAILURES=$(curl http://$ENGINE/tasks?status=FAILED)
