@@ -14,7 +14,7 @@ node('agent') {
     }
     stage('Scale Test') {
         sh 'cd single-machine-graph-scaling && mvn clean -U package'
-	sh 'java -jar single-machine-graph-scaling/target/single-machine-graph-scaling-0.13.0-SNAPSHOT-allinone.jar'
+	sh 'java -jar single-machine-graph-scaling/target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
     }
     } finally {
     stage('Tear Down') {
