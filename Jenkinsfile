@@ -24,7 +24,7 @@ node('agent') {
                  'ACTIVE_TASKS=1000',
                  'LDBC_JAR=~/ldbc-snb/target/ldbc_snb_datagen-0.2.5-jar-with-dependencies.jar'
                  'HADOOP_HOME=~/hadoop-2.6.0']) {
-            sh 'cd generate-SNB && ./load-SN.sh arch validate
+            sh 'cd generate-SNB && ./load-SNB.sh arch validate
         }
     }
     } finally {
