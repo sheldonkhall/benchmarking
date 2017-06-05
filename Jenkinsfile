@@ -12,8 +12,20 @@ node('agent') {
         //sh 'cd grakn-dist* && bin/grakn.sh start'
     }
     stage('Scale Test') {
-        sh 'cd single-machine-graph-scaling && mvn clean -U package'
-	sh 'java -jar single-machine-graph-scaling/target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
+        //sh 'cd single-machine-graph-scaling && mvn clean -U package'
+	//sh 'java -jar single-machine-graph-scaling/target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
+    }
+    stage('Load Validation Data') {
+        withEnv(['VALIDATION_DATA=~/readwrite_neo4j--validation_set.tar.gz',
+                 'SF1_DATA=~/snb-data-sf1.tar.gz',
+                 'CSV_DATA=social_network',
+                 'KEYSPACE=snb',
+                 'ENGINE=localhost:4567',
+                 'ACTIVE_TASKS=1000',
+                 'LDBC_JAR=~/ldbc-snb/target/ldbc_snb_datagen-0.2.5-jar-with-dependencies.jar'
+                 'HADOOP_HOME=~/hadoop-2.6.0']) {
+            sh 'cd generate-SNB && ./load-SN.sh arch validate
+        }
     }
     } finally {
     stage('Tear Down') {
