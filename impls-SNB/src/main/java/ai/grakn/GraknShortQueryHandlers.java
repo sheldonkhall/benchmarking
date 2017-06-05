@@ -1,10 +1,5 @@
 package ai.grakn;
 
-import ai.grakn.GraknGraph;
-
-import ai.grakn.GraknSession;
-import ai.grakn.GraknTxType;
-import ai.grakn.concept.Concept;
 import ai.grakn.graql.AskQuery;
 import ai.grakn.graql.MatchQuery;
 import ai.grakn.graql.admin.Answer;
@@ -14,7 +9,6 @@ import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;

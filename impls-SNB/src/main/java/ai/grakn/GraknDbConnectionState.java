@@ -1,9 +1,5 @@
 package ai.grakn;
 
-import ai.grakn.Grakn;
-import ai.grakn.GraknGraph;
-import ai.grakn.GraknSession;
-import ai.grakn.GraknTxType;
 import com.ldbc.driver.DbConnectionState;
 
 import java.io.IOException;

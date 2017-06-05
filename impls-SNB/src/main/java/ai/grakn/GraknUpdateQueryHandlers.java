@@ -1,15 +1,11 @@
 package ai.grakn;
 
-import ai.grakn.GraknGraph;
-import ai.grakn.GraknSession;
-import ai.grakn.GraknTxType;
 import ai.grakn.graql.InsertQuery;
 import com.ldbc.driver.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 
