@@ -16,7 +16,7 @@ node('slave1-dev-jenkins') {
 	//sh 'java -jar single-machine-graph-scaling/target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
     }
     stage('Build LDBC Connector') {
-        sh 'cd impls-SNB && mvn clean install assembly:single'
+        sh 'cd impls-SNB && mvn clean -X install assembly:single'
     }
     withEnv(['VALIDATION_DATA=/home/jenkins/readwrite_neo4j--validation_set.tar.gz',
             'SF1_DATA=snb-data-sf1.tar.gz',
