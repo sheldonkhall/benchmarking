@@ -3,7 +3,7 @@
 set -e
 
 # execute validation
-java -cp $LDBC_DRIVER:$WORKSPACE/$LDBC_CONNECTOR com.ldbc.driver.Client -db ai.grakn.GraknDb -P $LDBC_VALIDATION_CONFIG -vdb $WORKSPACE/generate-SNB/$CSV_DATA/validation_params.csv -rd $WORKSPACE/results -vp $WORKSPACE/generate-SNB/$CSV_DATA
+java -cp $LDBC_DRIVER:$WORKSPACE/$LDBC_CONNECTOR com.ldbc.driver.Client -db ai.grakn.GraknDb -P $LDBC_VALIDATION_CONFIG -vdb $WORKSPACE/generate-SNB/$CSV_DATA/validation_params.csv -rd $WORKSPACE/results -cvp $WORKSPACE/generate-SNB/$CSV_DATA
 
 # check for errors from Grakn
 FAILURES=$(curl http://$ENGINE/tasks?status=FAILED)
