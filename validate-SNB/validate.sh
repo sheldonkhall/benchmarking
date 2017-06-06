@@ -16,7 +16,7 @@ else
 fi
 
 # check for errors from LDBC
-FAILURES=$(cat validation_params-failed-actual.json)
+FAILURES=$(cat results/validation_params-failed-actual.json)
 if [ "$FAILURES" == "[ ]" ]; then
         echo "Validation completed without failures."
 else
