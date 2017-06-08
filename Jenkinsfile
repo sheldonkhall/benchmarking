@@ -1,3 +1,5 @@
 node('slave1-dev-jenkins') {
-    sh 'echo "I am in the Jenkinsfile"'
+    stage ('root script') {
+        sh 'echo "I am here"'
+    }
 }
