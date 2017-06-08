@@ -1,0 +1,3 @@
+stage ('child') {
+    sh 'echo "I am here"'
+}
