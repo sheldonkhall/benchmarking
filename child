@@ -1,3 +1,5 @@
-stage ('child') {
-    sh 'echo "I am here"'
+node('slave1-dev-jenkins') {
+    stage ('child') {
+        sh 'echo "I am here"'
+    }
 }
