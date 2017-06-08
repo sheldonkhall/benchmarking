@@ -1,7 +1,7 @@
 node('slave1-dev-jenkins') {
 properties(
     [
-        pipelineTriggers([cron('H/30 * * * *')])
+        pipelineTriggers([cron('H/2 * * * *')])
     ]
 )
     stage ('root script') {
