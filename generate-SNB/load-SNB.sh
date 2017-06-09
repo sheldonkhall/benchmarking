@@ -121,5 +121,8 @@ if [ "$FAILURES" == "[]" ]; then
 else
 	echo "There were failures during loading."
 	echo $FAILURES
+	jq -r '.[].id' $FAILURES | while read line ; do
+		echo `curl http://$ENGINE/tasks/$line`
+	done
 	exit 1
 fi
