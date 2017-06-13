@@ -124,5 +124,5 @@ else
 #	jq -r '.[].id' $FAILURES | while read line ; do
 #		echo `curl http://$ENGINE/tasks/$line`
 #	done
-# hide for now	exit 1
+	exit 1
 fi
