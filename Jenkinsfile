@@ -7,6 +7,8 @@ node('slave1-dev-jenkins') {
         dir('grakn') {
             git url: 'https://github.com/graknlabs/grakn', branch: 'stable'
             stage('Build Grakn') {
+		// force a failure
+		sh 'exit 1'
                 sh 'npm config set registry http://registry.npmjs.org/'
                 sh 'mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
@@ -62,7 +64,9 @@ node('slave1-dev-jenkins') {
                 }
             }
         }
-
+    } catch (error) {
+	slackSend channel: "#github", message: "Build Failed: ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+	throw error
     } finally {
 
         withEnv(['ENGINE=localhost:4567']) {
