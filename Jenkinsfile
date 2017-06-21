@@ -62,6 +62,7 @@ node('slave1-dev-jenkins') {
                 }
             }
         }
+	slackSend channel: "#github", message: "Periodic Build Success on stable: ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
     } catch (error) {
 	slackSend channel: "#github", message: "@here Periodic Build Failed on stable: ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
 	throw error
