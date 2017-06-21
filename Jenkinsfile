@@ -7,8 +7,6 @@ node('slave1-dev-jenkins') {
         dir('grakn') {
             git url: 'https://github.com/graknlabs/grakn', branch: 'stable'
             stage('Build Grakn') {
-		// force a failure
-		sh 'exit 1'
                 sh 'npm config set registry http://registry.npmjs.org/'
                 sh 'mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
