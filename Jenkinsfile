@@ -65,6 +65,12 @@ node('slave1-dev-jenkins') {
 
     } finally {
 
+        withEnv(['ENGINE=localhost:4567']) {
+		dir('benchmarking/tools') {
+			sh './check-errors.sh'
+		}
+	}
+
         dir('grakn') {
             archiveArtifacts artifacts: 'grakn-package/logs/grakn.log'
             stage('Tear Down Grakn') {
