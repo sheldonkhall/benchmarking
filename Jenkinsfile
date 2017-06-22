@@ -1,23 +1,23 @@
 #!groovy
 properties([pipelineTriggers([cron('H H/6 * * *')])])
-node('slave1-dev-jenkins') {
+def buildOnBranch = { String buildBranch ->
     def workspace = pwd()
     try {
 
         dir('grakn') {
-            git url: 'https://github.com/graknlabs/grakn', branch: 'stable'
-            stage('Build Grakn') {
+            git url: 'https://github.com/graknlabs/grakn', branch: buildBranch
+            stage(buildBranch+'Build Grakn') {
                 sh 'npm config set registry http://registry.npmjs.org/'
                 sh 'mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
-            stage('Init Grakn') {
+            stage(buildBranch+'Init Grakn') {
                 sh 'mkdir grakn-package'
                 sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
                 sh 'grakn-package/bin/grakn.sh start'
                 //todo: remove after bugfix
                 sh 'sleep 10'
             }
-            stage('Test Connection') {
+            stage(buildBranch+'Test Connection') {
                 sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
             }
         }
@@ -84,3 +84,5 @@ node('slave1-dev-jenkins') {
 
     }
 }
+
+parallel 'master':{buildOnBranch('master')}, 'stable':{buildOnBranch('stable')}, failFast: false
