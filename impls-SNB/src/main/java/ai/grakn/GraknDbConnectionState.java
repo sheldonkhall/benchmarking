@@ -16,12 +16,12 @@ public class GraknDbConnectionState extends DbConnectionState {
 
         String uri;
 
-        uri = properties.getOrDefault("uri", "localhost:4567");
+        uri = properties.getOrDefault("uri", properties.getOrDefault("ai.grakn.uri","localhost:4567"));
 
 
         String keyspace;
 
-        keyspace = properties.getOrDefault("keyspace", "snb");
+        keyspace = properties.getOrDefault("keyspace", properties.getOrDefault("ai.grakn.keyspace","snb"));
 
 
         GraknSession session = Grakn.session(uri, keyspace);
