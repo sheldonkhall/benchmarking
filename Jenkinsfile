@@ -6,18 +6,18 @@ def buildOnBranch = { String buildBranch ->
 
         dir('grakn') {
             git url: 'https://github.com/graknlabs/grakn', branch: buildBranch
-            stage(buildBranch+'Build Grakn') {
+            stage(buildBranch+' Build Grakn') {
                 sh 'npm config set registry http://registry.npmjs.org/'
                 sh 'mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
-            stage(buildBranch+'Init Grakn') {
+            stage(buildBranch+' Init Grakn') {
                 sh 'mkdir grakn-package'
                 sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
                 sh 'grakn-package/bin/grakn.sh start'
                 //todo: remove after bugfix
                 sh 'sleep 10'
             }
-            stage(buildBranch+'Test Connection') {
+            stage(buildBranch+' Test Connection') {
                 sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
             }
         }
@@ -25,14 +25,14 @@ def buildOnBranch = { String buildBranch ->
             checkout scm
 
             dir('single-machine-graph-scaling') {
-                stage('Scale Test') {
+                stage(buildBranch+' Scale Test') {
                     sh 'mvn clean -U package'
                     sh 'java -jar target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
                 }
             }
 
             dir('impls-SNB') {
-                stage('Build LDBC Connector') {
+                stage(buildBranch+' Build LDBC Connector') {
                     sh 'mvn -U clean install assembly:single'
                 }
             }
@@ -47,16 +47,16 @@ def buildOnBranch = { String buildBranch ->
                      'LDBC_CONNECTOR=' + workspace + '/benchmarking/impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
                      'LDBC_VALIDATION_CONFIG=readwrite_grakn--ldbc_driver_config--db_validation.properties']) {
                 dir('generate-SNB') {
-                    stage('Load Validation Data') {
+                    stage(buildBranch+' Load Validation Data') {
                         sh './load-SNB.sh arch validate'
                     }
                 }
-                stage('Measure Size') {
+                stage(buildBranch+' Measure Size') {
                     sh '../grakn/grakn-package/bin/nodetool flush'
                     sh 'du -hd 0 ../grakn/grakn-package/db/cassandra/data'
                 }
                 dir('validate-SNB') {
-                    stage('Validate Graph') {
+                    stage(buildBranch+' Validate Graph') {
                         sh './validate.sh'
                     }
                 }
@@ -76,7 +76,7 @@ def buildOnBranch = { String buildBranch ->
 
         dir('grakn') {
             archiveArtifacts artifacts: 'grakn-package/logs/grakn.log'
-            stage('Tear Down Grakn') {
+            stage(buildBranch+' Tear Down Grakn') {
                 sh 'grakn-package/bin/grakn.sh stop'
                 sh 'rm -rf grakn-package'
             }
