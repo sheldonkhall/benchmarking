@@ -85,4 +85,4 @@ def buildOnBranch = { String buildBranch ->
     }
 }
 
-parallel 'master':{buildOnBranch('master')}, 'stable':{buildOnBranch('stable')}, failFast: false
+parallel 'master':{node('slave3'){buildOnBranch('master')}}, 'stable':{node('slave2'){buildOnBranch('stable')}}, failFast: false
