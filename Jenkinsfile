@@ -21,6 +21,7 @@ def buildOnBranch = { String buildBranchVar ->
             }
             stage(buildBranch+' Test Connection') {
                 sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
+		sh 'if ! `graql.sh -o json -e \'match \\\$x label "concept"; ask;\'`; then exit 1;fi'
             }
         }
         dir('benchmarking') {
@@ -64,9 +65,9 @@ def buildOnBranch = { String buildBranchVar ->
                 }
             }
         }
-	slackSend channel: "#github", message: "Periodic Build Success on stable: ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+	slackSend channel: "#github", message: "Periodic Build Success on stable: ${env.BUILD_NUMBER} (<${env.BUILD_URL}flowGraphTable/|Open>)"
     } catch (error) {
-	slackSend channel: "#github", message: "@here Periodic Build Failed on stable: ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+	slackSend channel: "#github", message: "Periodic Build Failed on stable: ${env.BUILD_NUMBER} (<${env.BUILD_URL}flowGraphTable/|Open>)"
 	throw error
     } finally {
 
