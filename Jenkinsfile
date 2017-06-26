@@ -78,8 +78,9 @@ def buildOnBranch = { String buildBranchVar ->
 	}
 
         dir('grakn') {
-            archiveArtifacts artifacts: 'grakn-package/logs/grakn.log'
             stage(buildBranch+' Tear Down Grakn') {
+		sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
+            	archiveArtifacts artifacts: buildBranch'.log'
                 sh 'grakn-package/bin/grakn.sh stop'
                 sh 'rm -rf grakn-package'
             }
