@@ -13,6 +13,7 @@ def buildOnBranch = { String buildBranchVar ->
                 sh 'mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
             stage(buildBranch+' Init Grakn') {
+		sh 'if [ -d grakn-package ];  then rm -rf grakn-package; fi'
                 sh 'mkdir grakn-package'
                 sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
                 sh 'grakn-package/bin/grakn.sh start'
@@ -82,7 +83,7 @@ def buildOnBranch = { String buildBranchVar ->
 		sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
             	archiveArtifacts artifacts: buildBranch+'.log'
                 sh 'grakn-package/bin/grakn.sh stop'
-                sh 'rm -rf grakn-package'
+		sh 'if [ -d grakn-package ];  then rm -rf grakn-package; fi'
             }
         }
 
