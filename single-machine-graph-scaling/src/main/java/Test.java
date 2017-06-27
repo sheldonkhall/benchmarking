@@ -346,7 +346,7 @@ public class Test {
 
     private void simpleOntology(GraknSession session) {
         try (GraknGraph graph = session.open(GraknTxType.WRITE)) {
-            EntityType thing = graph.putEntityType("thing");
+            EntityType thing = graph.putEntityType("nothing");
             RoleType relation1 = graph.putRoleType("relation1");
             RoleType relation2 = graph.putRoleType("relation2");
             thing.plays(relation1).plays(relation2);
@@ -362,7 +362,7 @@ public class Test {
     private Set<String> makeSuperNodes(GraknSession session) {
         Set<String> superNodes = new HashSet<>();
         try (GraknGraph graph = session.open(GraknTxType.WRITE)) {
-            EntityType thing = graph.getEntityType("thing");
+            EntityType thing = graph.getEntityType("nothing");
             for (int i = 0; i < NUM_SUPER_NODES; i++) {
                 superNodes.add(thing.addEntity().getId().getValue());
             }
@@ -379,7 +379,7 @@ public class Test {
 
         for (int nodeIndex = startRange; nodeIndex < endRange; nodeIndex++) {
             List<VarPattern> insertQuery = new ArrayList<>();
-            insertQuery.add(var("node"+String.valueOf(nodeIndex)).isa("thing"));
+            insertQuery.add(var("node"+String.valueOf(nodeIndex)).isa("nothing"));
             for (String supernodeId : superNodes) {
                 insertQuery.add(var(supernodeId).id(ConceptId.of(supernodeId)));
                 insertQuery.add(var().isa("related")
