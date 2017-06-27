@@ -80,7 +80,7 @@ def buildOnBranch = { String buildBranchVar ->
         dir('grakn') {
             stage(buildBranch+' Tear Down Grakn') {
 		sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
-            	archiveArtifacts artifacts: buildBranch'.log'
+            	archiveArtifacts artifacts: buildBranch+'.log'
                 sh 'grakn-package/bin/grakn.sh stop'
                 sh 'rm -rf grakn-package'
             }
@@ -89,4 +89,4 @@ def buildOnBranch = { String buildBranchVar ->
     }
 }
 
-parallel 'master':{node('slave3'){buildOnBranch('master')}}, 'stable':{node('slave1'){buildOnBranch('stable')}}, failFast: false
+parallel 'master':{node('slave3'){buildOnBranch('master')}}, 'stable':{node('slave1'){buildOnBranch('stable')}}, failFast: true
