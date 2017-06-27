@@ -18,7 +18,7 @@ def buildOnBranch = { String buildBranchVar ->
                 sh 'mkdir grakn-package'
                 sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
                 //todo: remove sleep after bugfix
-                sh 'grakn-package/bin/grakn.sh start; sleep 10'
+                sh 'grakn-package/bin/grakn.sh start; sleep 60'
             }
             stage(buildBranch+' Test Connection') {
                 sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
