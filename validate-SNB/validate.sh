@@ -16,7 +16,7 @@ else
 	echo $FAILURES | jq -r '.[].id' | while read line ; do
                 RESULT=$(curl http://$ENGINE/tasks/$line)
 		echo $RESULT
-		if [ `echo $RESULT | jq -r '.[].className | contains("ai.grakn.engine.postprocessing.PostProcessingTask") | not'` ] ; then SHOULDEXIT=True; fi
+		if [ `echo $RESULT | jq -r '.className | contains("ai.grakn.engine.postprocessing.PostProcessingTask") | not'` ] ; then SHOULDEXIT=True; fi
         done   
         if [ $SHOULDEXIT ] ; then exit 1 ; fi
 fi

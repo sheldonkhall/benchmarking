@@ -122,7 +122,9 @@ else
 	echo "There were failures during loading."
 	echo $FAILURES
 	echo $FAILURES | jq -r '.[].id' | while read line ; do
-		echo `curl http://$ENGINE/tasks/$line`
+		RESULT=$(curl http://$ENGINE/tasks/$line)
+		echo $RESULT
+		if [ `echo $RESULT | jq -r '.className | contains("ai.grakn.engine.postprocessing.PostProcessingTask") | not'` ] ; then SHOULDEXIT=True; fi
 	done
-#	exit 1
+	if [ $SHOULDEXIT ] ; then exit 1 ; fi
 fi
