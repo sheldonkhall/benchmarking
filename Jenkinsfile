@@ -1,6 +1,7 @@
 #!groovy
 properties([pipelineTriggers([cron('H H/8 * * *')])])
-def buildOnBranch = { String buildBranch ->
+def buildOnBranch = { String buildBranchVar1 ->
+    def buildBranch = buildBranchVar2
     def workspace = pwd()
     try {
 
@@ -88,5 +89,5 @@ def buildOnBranch = { String buildBranch ->
     }
 }
 
-def jobs = ['master':{node('slave3'){buildOnBranch('master')}}, 'stable':{node('slave1'){buildOnBranch('stable')}}, failFast: true]
+def jobs = ['master':{node('slave3'){thisBranch = 'master'; buildOnBranch(thisBranch)}}, 'stable':{node('slave1'){thisBranch = 'stable'; buildOnBranch(thisBranch)}}, failFast: true]
 parallel jobs
