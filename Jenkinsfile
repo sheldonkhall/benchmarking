@@ -1,10 +1,8 @@
 #!groovy
 properties([pipelineTriggers([cron('H H/8 * * *')])])
-def buildOnBranch = { String buildBranchVar1 ->
-    def buildBranch = buildBranchVar1
+def buildOnBranch = { String buildBranch ->
     def workspace = pwd()
     try {
-
         dir('grakn') {
             git url: 'https://github.com/graknlabs/grakn', branch: buildBranch
             stage(buildBranch+' Build Grakn') {
