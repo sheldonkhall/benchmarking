@@ -1,7 +1,7 @@
 #!groovy
 properties([pipelineTriggers([cron('H H/8 * * *')])])
 def buildOnBranch = { String buildBranchVar1 ->
-    def buildBranch = buildBranchVar2
+    def buildBranch = buildBranchVar1
     def workspace = pwd()
     try {
 
