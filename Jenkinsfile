@@ -27,12 +27,12 @@ def buildOnBranch = { String buildBranchVar1 ->
         dir('benchmarking') {
             checkout scm
 
-            dir('single-machine-graph-scaling') {
-                stage(buildBranch+' Scale Test') {
-                    sh 'mvn clean -U package'
-                    sh 'java -jar target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
-                }
-            }
+            //dir('single-machine-graph-scaling') {
+            //    stage(buildBranch+' Scale Test') {
+            //        sh 'mvn clean -U package'
+            //        sh 'java -jar target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
+            //    }
+            //}
 
             dir('impls-SNB') {
                 stage(buildBranch+' Build LDBC Connector') {
