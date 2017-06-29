@@ -90,4 +90,5 @@ def buildOnBranch = { String buildBranchVar ->
     }
 }
 
-parallel 'master':{node('slave3'){buildOnBranch('master')}}, 'stable':{node('slave1'){buildOnBranch('stable')}}, failFast: true
+def jobs = ['master':{node('slave3'){buildOnBranch('master')}}, 'stable':{node('slave1'){buildOnBranch('stable')}}, failFast: true]
+parallel jobs
