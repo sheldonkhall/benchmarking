@@ -1,9 +1,7 @@
 #!groovy
 properties([pipelineTriggers([cron('H H/8 * * *')])])
-def buildOnBranch = { String buildBranchVar ->
+def buildOnBranch = { String buildBranch ->
     def workspace = pwd()
-    // this has to be done due to some concurrency issue
-    def buildBranch = buildBranchVar
     try {
 
         dir('grakn') {
