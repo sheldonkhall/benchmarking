@@ -10,8 +10,8 @@ def buildOnBranch = { String buildBranch ->
                 sh 'mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
             stage(buildBranch+' Init Grakn') {
-                sh 'if [ -d grakn-package ]; then grakn-package/bin/grakn.sh stop; fi'
-		sh 'if [ -d grakn-package ];  then rm -rf grakn-package; fi'
+                sh 'if [ -d grakn-package ] ; then grakn-package/bin/grakn.sh stop ; fi'
+		sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
                 sh 'mkdir grakn-package'
                 sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
                 //todo: remove sleep after bugfix
@@ -19,12 +19,13 @@ def buildOnBranch = { String buildBranch ->
             }
             stage(buildBranch+' Test Connection') {
                 sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
-		sh 'if ! [ `grakn-package/bin/graql.sh -o json -e \'match \\\$x label "concept"; ask;\'` ] ; then exit 1;fi'
+		sh 'if ! [ `grakn-package/bin/graql.sh -o json -e \'match \\\$x label "concept" ; ask ;\'` ] ; then exit 1 ; fi'
             }
         }
         dir('benchmarking') {
             checkout scm
 
+	    //todo: this test is off until the api change has made it to stable
             //dir('single-machine-graph-scaling') {
             //    stage(buildBranch+' Scale Test') {
             //        sh 'mvn clean -U package'
@@ -80,7 +81,7 @@ def buildOnBranch = { String buildBranch ->
 		sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
             	archiveArtifacts artifacts: buildBranch+'.log'
                 sh 'grakn-package/bin/grakn.sh stop'
-		sh 'if [ -d grakn-package ];  then rm -rf grakn-package; fi'
+		sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
             }
         }
 
