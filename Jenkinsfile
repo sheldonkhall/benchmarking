@@ -13,7 +13,7 @@ def buildOnBranch = { String buildBranch ->
                 sh 'if [ -d grakn-package ] ; then grakn-package/bin/grakn.sh stop ; fi'
 		sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
                 sh 'mkdir grakn-package'
-                sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
+                sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package > engineAllOut.txt 2>&1'
                 //todo: remove sleep after bugfix
                 sh 'grakn-package/bin/grakn.sh start; sleep 60'
             }
@@ -80,6 +80,7 @@ def buildOnBranch = { String buildBranch ->
             stage(buildBranch+' Tear Down Grakn') {
 		sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
             	archiveArtifacts artifacts: buildBranch+'.log'
+            	archiveArtifacts artifacts: buildBranch+'engineAllOut.txt'
                 sh 'grakn-package/bin/grakn.sh stop'
 		sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
             }
