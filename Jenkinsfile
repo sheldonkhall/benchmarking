@@ -80,7 +80,7 @@ def buildOnBranch = { String buildBranch ->
             stage(buildBranch+' Tear Down Grakn') {
 		sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
             	archiveArtifacts artifacts: buildBranch+'.log'
-		sh 'cp grakn-package/logs/engineAllOut.txt '+buildBranch+'engineAllOut.txt'
+		sh 'cp engineAllOut.txt '+buildBranch+'engineAllOut.txt'
             	archiveArtifacts artifacts: buildBranch+'engineAllOut.txt'
                 sh 'grakn-package/bin/grakn.sh stop'
 		sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
