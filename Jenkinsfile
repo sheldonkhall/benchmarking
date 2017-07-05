@@ -26,7 +26,7 @@ def buildOnBranch = { String buildBranch ->
 	dir('ldbc-driver') {
             git url: 'https://github.com/ldbc/ldbc_driver', branch: 'master'
 	    stage(buildBranch+' Build LDBC Driver') {
-            sh 'mvn -U clean install -Dmaven.repo.local=' + workspace + '/maven '
+            sh 'mvn -U clean install -DskipTests -Dmaven.repo.local=' + workspace + '/maven '
 	    }
 	}
         dir('benchmarking') {
