@@ -53,7 +53,7 @@ def buildOnBranch = { String buildBranch ->
                      'ENGINE=localhost:4567',
                      'ACTIVE_TASKS=1000',
                      'PATH+EXTRA=' + workspace + '/grakn/grakn-package/bin',
-                     'LDBC_DRIVER=/home/jenkins/ldbc_driver/target/jeeves-0.3-SNAPSHOT.jar',
+                     'LDBC_DRIVER=' + workspace + '/ldbc-driver/target/jeeves-0.3-SNAPSHOT.jar',
                      'LDBC_CONNECTOR=' + workspace + '/benchmarking/impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
                      'LDBC_VALIDATION_CONFIG=readwrite_grakn--ldbc_driver_config--db_validation.properties']) {
                 dir('generate-SNB') {
@@ -99,6 +99,5 @@ def buildOnBranch = { String buildBranch ->
     }
 }
 
-//def jobs = ['master':{node('slave3'){masterBranch = 'master'; buildOnBranch(masterBranch)}}, 'stable':{node('slave1'){stableBranch = 'stable'; buildOnBranch(stableBranch)}}, failFast: true]
-def jobs = ['master':{node('slave3'){masterBranch = 'master'; buildOnBranch(masterBranch)}}, failFast: true]
+def jobs = ['master':{node('slave3'){masterBranch = 'master'; buildOnBranch(masterBranch)}}, 'stable':{node('slave1'){stableBranch = 'stable'; buildOnBranch(stableBranch)}}, failFast: true]
 parallel jobs
