@@ -7,7 +7,8 @@ def buildOnBranch = { String buildBranch ->
             git url: 'https://github.com/graknlabs/grakn', branch: buildBranch
             stage(buildBranch+' Build Grakn') {
                 sh 'npm config set registry http://registry.npmjs.org/'
-                sh 'mvn clean install -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
+		sh 'if [ -d ' + workspace + '/maven ] ;  then rm -rf ' + workspace + '/maven ; fi'
+                sh 'mvn clean install -Dmaven.repo.local=' + workspace + '/maven -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
             stage(buildBranch+' Init Grakn') {
                 sh 'if [ -d grakn-package ] ; then grakn-package/bin/grakn.sh stop ; fi'
@@ -28,14 +29,14 @@ def buildOnBranch = { String buildBranch ->
 	    //todo: this test is off until the api change has made it to stable
             //dir('single-machine-graph-scaling') {
             //    stage(buildBranch+' Scale Test') {
-            //        sh 'mvn clean -U package'
+            //        sh 'mvn clean -U package -Dmaven.repo.local=' + workspace + '/maven '
             //        sh 'java -jar target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
             //    }
             //}
 
             dir('impls-SNB') {
                 stage(buildBranch+' Build LDBC Connector') {
-                    sh 'mvn -U clean install assembly:single'
+                    sh 'mvn -U clean install assembly:single -Dmaven.repo.local=' + workspace + '/maven '
                 }
             }
 
@@ -78,6 +79,7 @@ def buildOnBranch = { String buildBranch ->
 
         dir('grakn') {
             stage(buildBranch+' Tear Down Grakn') {
+		sh 'if [ -d ' + workspace + '/maven ] ;  then rm -rf ' + workspace + '/maven ; fi'
 		sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
             	archiveArtifacts artifacts: buildBranch+'.log'
 		sh 'cp engineAllOut.txt '+buildBranch+'engineAllOut.txt'
