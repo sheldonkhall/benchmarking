@@ -14,12 +14,12 @@
         <dependency>
             <groupId>ai.grakn</groupId>
             <artifactId>titan-factory</artifactId>
-            <version>LATEST</version>
+            <version>stable</version>
         </dependency>
         <dependency>
             <groupId>ai.grakn</groupId>
             <artifactId>grakn-graql</artifactId>
-            <version>LATEST</version>
+            <version>stable</version>
         </dependency>
         <dependency>
             <groupId>com.ldbc.driver</groupId>

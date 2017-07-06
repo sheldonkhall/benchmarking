@@ -24,8 +24,7 @@ public class GraknDbConnectionState extends DbConnectionState {
         keyspace = properties.getOrDefault("keyspace", properties.getOrDefault("ai.grakn.keyspace","snb"));
 
 
-        GraknSession session = Grakn.session(uri, keyspace);
-        this.session = session;
+        session = Grakn.session(uri, keyspace);
     }
 
     @Override

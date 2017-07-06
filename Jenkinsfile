@@ -8,6 +8,7 @@ def buildOnBranch = { String buildBranch ->
             stage(buildBranch+' Build Grakn') {
                 sh 'npm config set registry http://registry.npmjs.org/'
 		sh 'if [ -d ' + workspace + '/maven ] ;  then rm -rf ' + workspace + '/maven ; fi'
+		sh 'mvn versions:set "-DnewVersion=stable" "-DgenerateBackupPoms=false"'
                 sh 'mvn clean install -Dmaven.repo.local=' + workspace + '/maven -DskipTests -B -U -Djetty.log.level=WARNING -Djetty.log.appender=STDOUT'
             }
             stage(buildBranch+' Init Grakn') {
@@ -48,7 +49,7 @@ def buildOnBranch = { String buildBranch ->
             }
 
             withEnv(['VALIDATION_DATA=/home/jenkins/readwrite_neo4j--validation_set.tar.gz',
-                     'CSV_DATA=social_network',
+                     'CSV_DATA=' + workspace + 'benchmarking/generate-SNB/social_network',
                      'KEYSPACE=snb',
                      'ENGINE=localhost:4567',
                      'ACTIVE_TASKS=1000',
