@@ -6,7 +6,7 @@
 
     <groupId>ai.grakn</groupId>
     <artifactId>single-machine-graph-scaling</artifactId>
-    <version>0.14.0-SNAPSHOT</version>
+    <version>stable</version>
 
     <properties>
         <java.version>1.8</java.version>
@@ -18,20 +18,6 @@
             <groupId>ai.grakn</groupId>
             <artifactId>titan-factory</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.servicemix.bundles</groupId>
-                    <artifactId>org.apache.servicemix.bundles.commons-csv</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>ai.grakn</groupId>
