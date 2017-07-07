@@ -37,12 +37,12 @@ def buildOnBranch = { String buildBranch ->
 
 					timeout(30) {
 						//todo: this test is off until the api change has made it to stable
-						//dir('single-machine-graph-scaling') {
-						//    stage(buildBranch+' Scale Test') {
-						//        sh 'mvn clean -U package -Dmaven.repo.local=' + workspace + '/maven '
-						//        sh 'java -jar target/single-machine-graph-scaling-0.14.0-SNAPSHOT-allinone.jar'
-						//    }
-						//}
+						dir('single-machine-graph-scaling') {
+						    stage(buildBranch+' Scale Test') {
+						        sh 'mvn clean -U package -Dmaven.repo.local=' + workspace + '/maven '
+						        sh 'java -jar target/single-machine-graph-scaling-stable-allinone.jar'
+						    }
+						}
 					}
 
 				dir('impls-SNB') {
