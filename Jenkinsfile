@@ -36,7 +36,6 @@ def buildOnBranch = { String buildBranch ->
 				checkout scm
 
 					timeout(30) {
-						//todo: this test is off until the api change has made it to stable
 						dir('single-machine-graph-scaling') {
 						    stage(buildBranch+' Scale Test') {
 						        sh 'mvn clean -U package -Dmaven.repo.local=' + workspace + '/maven '
