@@ -114,4 +114,4 @@ do
 done < migrationsToRun.txt
 
 # confirm there were no errors
-$SCRIPTPATH/tools/check-errors.sh
+$SCRIPTPATH/../tools/check-errors.sh
