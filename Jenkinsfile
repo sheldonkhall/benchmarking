@@ -17,8 +17,7 @@ def buildOnBranch = { String buildBranch ->
 							sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
 							sh 'mkdir grakn-package'
 							sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
-							//todo: remove sleep after bugfix
-							sh 'grakn-package/bin/grakn.sh start > engineAllOut.txt 2>&1; sleep 60'
+							sh 'grakn-package/bin/grakn.sh start'
 					}
 					stage(buildBranch+' Test Connection') {
 						sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
@@ -96,8 +95,6 @@ def buildOnBranch = { String buildBranch ->
 						sh 'if [ -d ' + workspace + '/maven ] ;  then rm -rf ' + workspace + '/maven ; fi'
 							sh 'cp grakn-package/logs/grakn.log '+buildBranch+'.log'
 							archiveArtifacts artifacts: buildBranch+'.log'
-							sh 'cp engineAllOut.txt '+buildBranch+'engineAllOut.txt'
-							archiveArtifacts artifacts: buildBranch+'engineAllOut.txt'
 							sh 'grakn-package/bin/grakn.sh stop'
 							sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
 					}
