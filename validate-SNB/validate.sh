@@ -2,24 +2,14 @@
 
 set -e
 
+# set script directory as working directory
+SCRIPTPATH=`cd "$(dirname "$0")" && pwd -P`
+
 # execute validation
 java -cp $LDBC_DRIVER:$LDBC_CONNECTOR com.ldbc.driver.Client -db ai.grakn.GraknDb -P $LDBC_VALIDATION_CONFIG -vdb $CSV_DATA/validation_params.csv -p ldbc.snb.interactive.parameters_dir $CSV_DATA -p ai.grakn.uri $ENGINE -p ai.grakn.keyspace $KEYSPACE
 
 # check for errors from Grakn
-FAILURES=$(curl http://$ENGINE/tasks?status=FAILED)
-if [ "$FAILURES" == "[]" ]; then
-        echo "Load completed without failures."
-else
-        echo "There were failures during loading."
-        echo $FAILURES
-        # until we have released the last version with postprocessing use a modified line to ignore
-	echo $FAILURES | jq -r '.[].id' | while read line ; do
-                RESULT=$(curl http://$ENGINE/tasks/$line)
-		echo $RESULT
-		if [ `echo $RESULT | jq -r '.className | contains("ai.grakn.engine.postprocessing.PostProcessingTask") | not'` ] ; then SHOULDEXIT=True; fi
-        done   
-        if [ $SHOULDEXIT ] ; then exit 1 ; fi
-fi
+$SCRIPTPATH/../tools/check-errors.sh fail
 
 # check for errors from LDBC
 FAILURES=$(cat $CSV_DATA/validation_params-failed-actual.json)
