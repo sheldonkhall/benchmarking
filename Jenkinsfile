@@ -17,6 +17,8 @@ def buildOnBranch = { String buildBranch ->
 							sh 'if [ -d grakn-package ] ;  then rm -rf grakn-package ; fi'
 							sh 'mkdir grakn-package'
 							sh 'tar -xf grakn-dist/target/grakn-dist*.tar.gz --strip=1 -C grakn-package'
+							//todo: remove the timeout hack when problem resolved
+							sh 'sed -i.bak \'s/30/120/\' grakn-package/bin/grakn-engine.sh'
 							sh 'grakn-package/bin/grakn.sh start'
 					}
 					stage(buildBranch+' Test Connection') {
