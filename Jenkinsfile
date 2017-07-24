@@ -21,7 +21,6 @@ def buildOnBranch = { String buildBranch ->
 					}
 					stage(buildBranch+' Test Connection') {
 						sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
-							sh 'if ! [ `grakn-package/bin/graql.sh -o json -e \'match \\\$x label "concept" ; ask ;\'` ] ; then exit 1 ; fi'
 					}
 				}
 				dir('ldbc-driver') {
