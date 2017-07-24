@@ -30,7 +30,6 @@ public class GraknShortQueryHandlers {
                                      ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                graph.showImplicitConcepts(true);
 
                 String query =
                         "match" +
@@ -80,7 +79,6 @@ public class GraknShortQueryHandlers {
                                      ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                graph.showImplicitConcepts(true);
 
                 String messageQuery = "match " +
                         "$person isa person has person-id " + operation.personId() + "; " +
@@ -148,7 +146,6 @@ public class GraknShortQueryHandlers {
                                      ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                graph.showImplicitConcepts(true);
 
                 String query = "match " +
                         "$person isa person; " +
@@ -196,7 +193,6 @@ public class GraknShortQueryHandlers {
                                      ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                graph.showImplicitConcepts(true);
 
                 String query = "match " +
                         "$m has message-id " + operation.messageId() + "; " +
@@ -235,7 +231,6 @@ public class GraknShortQueryHandlers {
                                      ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                graph.showImplicitConcepts(true);
 
                 String query = "match " +
                         " $m has message-id " + operation.messageId() + ";" +
@@ -275,7 +270,6 @@ public class GraknShortQueryHandlers {
                                      ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                graph.showImplicitConcepts(true);
 
                 String query = "match " +
                         "$m has message-id " + operation.messageId() + "; " +
@@ -318,7 +312,6 @@ public class GraknShortQueryHandlers {
                                      ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                graph.showImplicitConcepts(true);
 
                 String query = "match $m isa message has message-id " + operation.messageId() + " ;" +
                         "(product: $m, creator: $author1) isa has-creator; " +
