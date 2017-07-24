@@ -84,18 +84,11 @@ public class Test {
         CSVPrinter printer = createCSVPrinter("countIT.txt");
         String keyspace = randomKeyspace();
         Set<String> superNodes;
-        Long emptyCount;
 
         try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
 
             // Insert super nodes into graph
             simpleOntology(session);
-
-            // get a count before adding any data
-            try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                emptyCount = graph.admin().getTinkerTraversal().count().next();
-                System.out.println("gremlin count before data is: " + emptyCount);
-            }
 
             superNodes = makeSuperNodes(session);
         }
@@ -110,16 +103,6 @@ public class Test {
             addNodesToSuperNodes(keyspace, superNodes, previousGraphSize, graphSize);
             previousGraphSize = graphSize;
             System.out.println("stop generate graph " + System.currentTimeMillis() / 1000L + "s");
-
-            Long gremlinCount = (long) (NUM_SUPER_NODES * (3 * graphSize + 1) + graphSize);
-            try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
-                try (GraknGraph graph = session.open(GraknTxType.READ)) {
-                    System.out.println("gremlin count is: " +
-                            graph.admin().getTinkerTraversal().count().next());
-                }
-            }
-            gremlinCount += emptyCount;
-            System.out.println("expected gremlin count is: " + gremlinCount);
 
             try (GraknSession session = Grakn.session(engineHostname, keyspace)) {
                 for (int workerNumber : workerNumbers) {
