@@ -28,7 +28,7 @@ import static ai.grakn.graql.Graql.var;
 public class GraknQueryHandlers {
 
     static VarPattern personType = var().label("person");
-    static VarPattern aPerson = var("person").isa(personType);
+    static VarPattern personEntity = var("person").isa(personType);
     static VarPattern knowsType = var().label("knows");
     static VarPattern hasCreatorType = var().label("has-creator");
 
@@ -38,34 +38,33 @@ public class GraknQueryHandlers {
     static Label personFirstName = Label.of("first-name");
     static Label personLastName = Label.of("last-name");
 
-    public static class LdbcQuery1Handler implements OperationHandler<LdbcQuery2, GraknDbConnectionState> {
+    public static class LdbcQuery2Handler implements OperationHandler<LdbcQuery2, GraknDbConnectionState> {
 
         @Override
         public void executeOperation(LdbcQuery2 ldbcQuery2, GraknDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graknGraph = session.open(GraknTxType.READ)) {
-                VarPattern mainPerson = aPerson.has(personID, var().val(ldbcQuery2.personId()));
                 Var aFriend = var("aFriend");
                 Var aFriendId = var("aFriendID");
                 Var aFriendFirstName = var("aFriendFirstName");
                 Var aFriendLastName = var("aFriendLastName");
-                VarPattern friendHasFirst = aFriend.has(personFirstName, aFriendFirstName);
-                VarPattern friendHasLast = aFriend.has(personLastName, aFriendLastName);
-                VarPattern friendHasID = aFriend.has(personID, aFriendId);
-                VarPattern friendsOfMainPerson = var().rel(mainPerson).rel(aFriend).isa(knowsType);
-                VarPattern aMessage = var("aMessage");
-                VarPattern messagesOfFriend = var().rel(aFriend).rel(aMessage).isa(hasCreatorType);
+                Var aMessage = var("aMessage");
                 Var aMessageDate = var();
                 Var aMessageId = var();
-                VarPattern dateOfMessage = aMessage.has(messageDate, aMessageDate);
-                VarPattern idOfMessage = aMessage.has(messageID, aMessageId);
-                VarPattern filteredDate = aMessageDate.val(lte(LocalDateTime.ofInstant(ldbcQuery2.maxDate().toInstant(), ZoneOffset.UTC)));
-                MatchQuery graknLdbcQuery1 = match(friendHasFirst, friendHasLast, friendHasID, friendsOfMainPerson, messagesOfFriend, dateOfMessage, idOfMessage, filteredDate);
-                graknLdbcQuery1.orderBy(aMessageDate, Order.desc).limit(ldbcQuery2.limit());
+                LocalDateTime maxDate = LocalDateTime.ofInstant(ldbcQuery2.maxDate().toInstant(), ZoneOffset.UTC);
+                MatchQuery graknLdbcQuery2 = match(
+                        var().rel(personEntity.has(personID, var().val(ldbcQuery2.personId()))).rel(aFriend).isa(knowsType),
+                        aFriend.has(personFirstName, aFriendFirstName).has(personLastName, aFriendLastName).has(personID, aFriendId),
+                        var().rel(aFriend).rel(aMessage).isa(hasCreatorType),
+                        aMessage.has(messageDate, aMessageDate).has(messageID, aMessageId),
+                        aMessageDate.val(lte(maxDate)));
 
-                List<Answer> rawResult = graknLdbcQuery1.withGraph(graknGraph).execute();
+                graknLdbcQuery2.orderBy(aMessageDate, Order.desc).limit(ldbcQuery2.limit());
 
-                Comparator<Answer> ugly = Comparator.comparingLong(map -> map.get(aMessageId).<Long>asResource().getValue());
+                List<Answer> rawResult = graknLdbcQuery2.withGraph(graknGraph).execute();
+
+                Comparator<Answer> ugly = Comparator.<Answer>comparingLong(map -> resource(map, aMessageDate)).thenComparingLong(map -> resource(map, aMessageId));
+
                 List<LdbcQuery2Result> result = rawResult.stream().sorted(ugly).map(map -> new LdbcQuery2Result(
                         resource(map, aFriendId),
                         resource(map, aFriendFirstName),
@@ -74,6 +73,8 @@ public class GraknQueryHandlers {
                         "blah",
                         123L
                 )).collect(Collectors.toList());
+
+                resultReporter.report(0,result,ldbcQuery2);
             }
         }
 
