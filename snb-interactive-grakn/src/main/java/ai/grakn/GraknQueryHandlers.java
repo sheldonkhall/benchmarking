@@ -1,6 +1,7 @@
 package ai.grakn;
 
 import ai.grakn.concept.Label;
+import ai.grakn.graql.Graql;
 import ai.grakn.graql.MatchQuery;
 import ai.grakn.graql.Order;
 import ai.grakn.graql.Var;
@@ -49,31 +50,48 @@ public class GraknQueryHandlers {
                 Var aFriendFirstName = var("aFriendFirstName");
                 Var aFriendLastName = var("aFriendLastName");
                 Var aMessage = var("aMessage");
-                Var aMessageDate = var();
-                Var aMessageId = var();
+                Var aMessageDate = var("aMessageDate");
+                Var aMessageId = var("aMessageID");
                 LocalDateTime maxDate = LocalDateTime.ofInstant(ldbcQuery2.maxDate().toInstant(), ZoneOffset.UTC);
+
+                // to make this query execute faster split it into two parts:
+                //     the first does the ordering
+                //     the second fetches the resources
                 MatchQuery graknLdbcQuery2 = match(
                         var().rel(personEntity.has(personID, var().val(ldbcQuery2.personId()))).rel(aFriend).isa(knowsType),
-                        aFriend.has(personFirstName, aFriendFirstName).has(personLastName, aFriendLastName).has(personID, aFriendId),
                         var().rel(aFriend).rel(aMessage).isa(hasCreatorType),
                         aMessage.has(messageDate, aMessageDate).has(messageID, aMessageId),
                         aMessageDate.val(lte(maxDate)));
 
-                graknLdbcQuery2.orderBy(aMessageDate, Order.desc).limit(ldbcQuery2.limit());
+                List<Answer> rawResult = graknLdbcQuery2.orderBy(aMessageDate, Order.desc).limit(ldbcQuery2.limit()).withGraph(graknGraph).execute();
 
-                List<Answer> rawResult = graknLdbcQuery2.withGraph(graknGraph).execute();
+                // sort first by date and then by message id
+                Comparator<Answer> ugly = Comparator.<Answer>comparingLong(
+                        map -> map.get(aMessageDate).<LocalDateTime>asResource().getValue().
+                                toInstant(ZoneOffset.UTC).toEpochMilli()).
+                        thenComparingLong(map -> resource(map, aMessageId));
 
-                Comparator<Answer> ugly = Comparator.<Answer>comparingLong(map -> resource(map, aMessageDate)).thenComparingLong(map -> resource(map, aMessageId));
+                // process the query results
+                List<LdbcQuery2Result> result = rawResult.stream().sorted(ugly).map(map -> {
+                    // fetch the resources attached to entities in the queries
+                    MatchQuery queryExtendedInfo = match(
+                            aFriend.has(personFirstName, aFriendFirstName).has(personLastName, aFriendLastName).has(personID, aFriendId),
+                            var().rel(aFriend).rel(aMessage).isa(hasCreatorType),
+                            aMessage.has(messageDate, aMessageDate).has(messageID, var().val(this.<Long>resource(map, aMessageId))));
+                    Answer extendedInfo = queryExtendedInfo.withGraph(graknGraph).execute().iterator().next();
 
-                List<LdbcQuery2Result> result = rawResult.stream().sorted(ugly).map(map -> new LdbcQuery2Result(
-                        resource(map, aFriendId),
-                        resource(map, aFriendFirstName),
-                        resource(map, aFriendLastName),
-                        resource(map, aMessageId),
-                        "blah",
-                        123L
-                )).collect(Collectors.toList());
+                    // prepare the answer from the original query and the query for extended information
+                    return new LdbcQuery2Result(
+                            resource(extendedInfo, aFriendId),
+                            resource(extendedInfo, aFriendFirstName),
+                            resource(extendedInfo, aFriendLastName),
+                            resource(map, aMessageId),
+                            "blah",
+                            map.get(aMessageDate).<LocalDateTime>asResource().getValue().
+                                    toInstant(ZoneOffset.UTC).toEpochMilli());
+                }).collect(Collectors.toList());
 
+                result.iterator().forEachRemaining(System.out::println);
                 resultReporter.report(0,result,ldbcQuery2);
             }
         }
