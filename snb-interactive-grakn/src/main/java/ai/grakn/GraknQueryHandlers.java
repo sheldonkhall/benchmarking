@@ -28,8 +28,6 @@ import static ai.grakn.graql.Graql.var;
  */
 public class GraknQueryHandlers {
 
-    static VarPattern personType = var().label("person");
-    static VarPattern personEntity = var("person").isa(personType);
     static VarPattern knowsType = var().label("knows");
     static VarPattern hasCreatorType = var().label("has-creator");
 
@@ -45,6 +43,7 @@ public class GraknQueryHandlers {
         public void executeOperation(LdbcQuery2 ldbcQuery2, GraknDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graknGraph = session.open(GraknTxType.READ)) {
+                Var thePerson = var("person");
                 Var aFriend = var("aFriend");
                 Var aFriendId = var("aFriendID");
                 Var aFriendFirstName = var("aFriendFirstName");
@@ -58,7 +57,7 @@ public class GraknQueryHandlers {
                 //     the first does the ordering
                 //     the second fetches the resources
                 MatchQuery graknLdbcQuery2 = match(
-                        var().rel(personEntity.has(personID, var().val(ldbcQuery2.personId()))).rel(aFriend).isa(knowsType),
+                        var().rel(thePerson.has(personID, var().val(ldbcQuery2.personId()))).rel(aFriend).isa(knowsType),
                         var().rel(aFriend).rel(aMessage).isa(hasCreatorType),
                         aMessage.has(messageDate, aMessageDate).has(messageID, aMessageId),
                         aMessageDate.val(lte(maxDate)));
