@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static ai.grakn.graql.Graql.lte;
 import static ai.grakn.graql.Graql.match;
+import static ai.grakn.graql.Graql.or;
 import static ai.grakn.graql.Graql.var;
 
 /**
@@ -36,6 +37,8 @@ public class GraknQueryHandlers {
     static Label messageID = Label.of("message-id");
     static Label personFirstName = Label.of("first-name");
     static Label personLastName = Label.of("last-name");
+    static Label messageContent = Label.of("content");
+    static Label messageImageFile = Label.of("image-file");
 
     public static class LdbcQuery2Handler implements OperationHandler<LdbcQuery2, GraknDbConnectionState> {
 
@@ -51,6 +54,7 @@ public class GraknQueryHandlers {
                 Var aMessage = var("aMessage");
                 Var aMessageDate = var("aMessageDate");
                 Var aMessageId = var("aMessageID");
+                Var someContent = var("content");
                 LocalDateTime maxDate = LocalDateTime.ofInstant(ldbcQuery2.maxDate().toInstant(), ZoneOffset.UTC);
 
                 // to make this query execute faster split it into two parts:
@@ -76,7 +80,9 @@ public class GraknQueryHandlers {
                     MatchQuery queryExtendedInfo = match(
                             aFriend.has(personFirstName, aFriendFirstName).has(personLastName, aFriendLastName).has(personID, aFriendId),
                             var().rel(aFriend).rel(aMessage).isa(hasCreatorType),
-                            aMessage.has(messageDate, aMessageDate).has(messageID, var().val(this.<Long>resource(map, aMessageId))));
+                            aMessage.has(messageDate, aMessageDate)
+                                    .has(messageID, var().val(this.<Long>resource(map, aMessageId))),
+                            or(aMessage.has(messageContent, someContent), aMessage.has(messageImageFile, someContent)));
                     Answer extendedInfo = queryExtendedInfo.withGraph(graknGraph).execute().iterator().next();
 
                     // prepare the answer from the original query and the query for extended information
@@ -85,7 +91,7 @@ public class GraknQueryHandlers {
                             resource(extendedInfo, aFriendFirstName),
                             resource(extendedInfo, aFriendLastName),
                             resource(map, aMessageId),
-                            "blah",
+                            resource(extendedInfo, someContent),
                             map.get(aMessageDate).<LocalDateTime>asResource().getValue().
                                     toInstant(ZoneOffset.UTC).toEpochMilli());
                 }).collect(Collectors.toList());
