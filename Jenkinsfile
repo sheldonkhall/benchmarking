@@ -53,7 +53,7 @@ def buildOnBranch = { String buildBranch ->
 						}
 					}
 
-				dir('impls-SNB') {
+				dir('snb-interactive-grakn') {
 					stage(buildBranch+' Build LDBC Connector') {
 						sh 'mvn -U clean install assembly:single -Dmaven.repo.local=' + workspace + '/maven '
 					}
@@ -67,7 +67,7 @@ def buildOnBranch = { String buildBranch ->
 						'ACTIVE_TASKS=1000',
 						'PATH+EXTRA=' + workspace + '/grakn/grakn-package/bin',
 						'LDBC_DRIVER=' + workspace + '/ldbc-driver/target/jeeves-0.3-SNAPSHOT.jar',
-						'LDBC_CONNECTOR=' + workspace + '/benchmarking/impls-SNB/target/snb-interactive-grakn-0.0.1-jar-with-dependencies.jar',
+						'LDBC_CONNECTOR=' + workspace + '/benchmarking/snb-interactive-grakn/target/snb-interactive-grakn-stable-jar-with-dependencies.jar',
 						'LDBC_VALIDATION_CONFIG=readwrite_grakn--ldbc_driver_config--db_validation.properties']) {
 					timeout(45) {
 						dir('generate-SNB') {
