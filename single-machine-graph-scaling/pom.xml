@@ -4,30 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ai.grakn</groupId>
-    <artifactId>single-machine-graph-scaling</artifactId>
-    <version>stable</version>
+    <parent>
+        <artifactId>continous-integration-tests</artifactId>
+        <groupId>ai.grakn</groupId>
+        <version>stable</version>
+    </parent>
 
-    <properties>
-        <java.version>1.8</java.version>
-        <commons-csv.version>1.3</commons-csv.version>
-    </properties>
+    <artifactId>single-machine-graph-scaling</artifactId>
+    <name>Single Machine Graph Scaling Test</name>
 
     <dependencies>
         <dependency>
-            <groupId>ai.grakn</groupId>
-            <artifactId>titan-factory</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.grakn</groupId>
-            <artifactId>grakn-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-nop</artifactId>
-            <version>1.7.20</version>
+            <version>${slf4j-nop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -38,15 +28,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>

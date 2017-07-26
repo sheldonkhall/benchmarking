@@ -9,7 +9,7 @@
 	</parent>
 
     <artifactId>rungraqlqueries</artifactId>
-	<name>Run With Graql Queries</name>
+	<name>Run With Graql Queries Test</name>
 
 	<dependencies>
 		<dependency>
