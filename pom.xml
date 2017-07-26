@@ -12,15 +12,16 @@
     <description>The parent project which contains all the larger java continous integration tests for the Grakn Stack</description>
 
     <modules>
+        <!--TODO: Maybe come up with better names for modules-->
         <module>snb-interactive-grakn</module>
+        <module>rungraqlqueries</module>
     </modules>
 
     <properties>
         <java.version>1.8</java.version>
-
         <!-- TODO: Change All 0.15.0 to stable -->
         <grakn.version>0.15.0</grakn.version>
-
+        <mjson.version>1.4.0</mjson.version>
         <ldbc-driver.version>0.3-SNAPSHOT</ldbc-driver.version>
     </properties>
 
@@ -33,6 +34,11 @@
         <dependency>
             <groupId>ai.grakn</groupId>
             <artifactId>grakn-graql</artifactId>
+            <version>${grakn.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.grakn</groupId>
+            <artifactId>grakn-client</artifactId>
             <version>${grakn.version}</version>
         </dependency>
     </dependencies>
@@ -58,5 +64,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

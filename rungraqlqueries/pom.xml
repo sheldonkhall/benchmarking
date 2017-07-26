@@ -1,23 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>ai.grakn.benchmark</groupId>
-	<artifactId>rungraqlqueries</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>rungraqlqueries</name>
 
-	<properties>
-		<grakn.version>0.13.0-SNAPSHOT</grakn.version>
-		<java.version>1.8</java.version>
-		<mjson.version>1.4.0</mjson.version>
-	</properties>
+	<parent>
+		<artifactId>continous-integration-tests</artifactId>
+		<groupId>ai.grakn</groupId>
+		<version>stable</version>
+	</parent>
+
+    <artifactId>rungraqlqueries</artifactId>
+	<name>Run With Graql Queries</name>
 
 	<dependencies>
-		<dependency>
-			<groupId>ai.grakn</groupId>
-			<artifactId>grakn-client</artifactId>
-			<version>${grakn.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.sharegov</groupId>
 			<artifactId>mjson</artifactId>
@@ -27,15 +21,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
