@@ -67,7 +67,7 @@ public class GraknQueryHandlers {
                 // sort first by date and then by message id
                 Comparator<Answer> ugly = Comparator.<Answer>comparingLong(
                         map -> map.get(aMessageDate).<LocalDateTime>asResource().getValue().
-                                toInstant(ZoneOffset.UTC).toEpochMilli()).
+                                toInstant(ZoneOffset.UTC).toEpochMilli()).reversed().
                         thenComparingLong(map -> resource(map, aMessageId));
 
                 // process the query results
