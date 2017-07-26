@@ -1,12 +1,20 @@
 #!groovy
+//This sets properties in the Jenkins server. In this case run every 8 hours
 properties([pipelineTriggers([cron('H H/8 * * *')])])
+
+//Function to run all the tests. 
+// @param buildBranch is the branch on the repo to run against
 def buildOnBranch = { String buildBranch ->
 	def workspace = pwd()
+		//Everything is wrapped in a try catch so we can handle any test failures
+		//If one test fails then all the others will stop. I.e. we fail fast
 		try {
+			//Always wrap each test block in a timeout
+			//This first block sets up engine within 15 minutes
 			timeout(15) {
 				dir('grakn') {
 					git url: 'https://github.com/graknlabs/grakn', branch: buildBranch
-						stage(buildBranch+' Build Grakn') {
+						stage(buildBranch+' Build Grakn') { //Stages allow you to organise and group things within Jenkins
 							sh 'npm config set registry http://registry.npmjs.org/'
 								sh 'if [ -d ' + workspace + '/maven ] ;  then rm -rf ' + workspace + '/maven ; fi'
 								sh 'mvn versions:set "-DnewVersion=stable" "-DgenerateBackupPoms=false"'
@@ -22,7 +30,7 @@ def buildOnBranch = { String buildBranch ->
 							sh 'grakn-package/bin/grakn.sh start'
 					}
 					stage(buildBranch+' Test Connection') {
-						sh 'grakn-package/bin/graql.sh -e "match \\\$x;"'
+						sh 'grakn-package/bin/graql.sh -e "match \\\$x;"' //Sanity sheck query. I.e. is everything working?
 					}
 				}
 				dir('ldbc-driver') {
@@ -32,13 +40,14 @@ def buildOnBranch = { String buildBranch ->
 						}
 				}
 			}
+            //The actual tests
 			dir('benchmarking') {
-				checkout scm
+				checkout scm //Checkout the repo this jenkins files comes from
 
 					timeout(30) {
 						dir('single-machine-graph-scaling') {
 						    stage(buildBranch+' Scale Test') {
-						        sh 'mvn clean -U package -Dmaven.repo.local=' + workspace + '/maven '
+						        sh 'mvn clean -U package -Dmaven.repo.local=' + workspace + '/maven ' //Point to local repo. Not the one on the machine
 						        sh 'java -jar target/single-machine-graph-scaling-stable-allinone.jar'
 						    }
 						}
@@ -50,6 +59,7 @@ def buildOnBranch = { String buildBranch ->
 					}
 				}
 
+                //Sets up environmental variables which can be shared between multiple tests
 				withEnv(['VALIDATION_DATA=/home/jenkins/readwrite_neo4j--validation_set.tar.gz',
 						'CSV_DATA=' + workspace + 'benchmarking/generate-SNB/social_network',
 						'KEYSPACE=snb',
@@ -83,11 +93,11 @@ def buildOnBranch = { String buildBranch ->
 		} catch (error) {
 			slackSend channel: "#github", message: "Periodic Build Failed on "+buildBranch+": ${env.BUILD_NUMBER} (<${env.BUILD_URL}flowGraphTable/|Open>)"
 				throw error
-		} finally {
+		} finally { // Tears down test environment
 			timeout(5) {
 				withEnv(['ENGINE=localhost:4567']) {
 					dir('benchmarking/tools') {
-						sh './check-errors.sh'
+						sh './check-errors.sh' //Uses rest API to look for any failed jobs and then gets the stack trace of the failed jobs
 					}
 				}
 
@@ -104,5 +114,8 @@ def buildOnBranch = { String buildBranch ->
 		}
 }
 
+//Key - Value dictionary of jobs to run
+//For example for the first one "master" is the key it is saying to run a job on node('slave3') and that job is buildOnBranch(masterBranch)
+//For each entry in the dictionary a parallel job is run. Except for the last entry which is magic used to fail fast. In this case it allows each branch to run even if one fails.
 def jobs = ['master':{node('slave3'){masterBranch = 'master'; buildOnBranch(masterBranch)}}, 'stable':{node('slave1'){stableBranch = 'stable'; buildOnBranch(stableBranch)}}, failFast: false]
 parallel jobs
