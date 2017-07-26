@@ -69,7 +69,7 @@ def buildOnBranch = { String buildBranch ->
 						'LDBC_DRIVER=' + workspace + '/ldbc-driver/target/jeeves-0.3-SNAPSHOT.jar',
 						'LDBC_CONNECTOR=' + workspace + '/benchmarking/snb-interactive-grakn/target/snb-interactive-grakn-stable-jar-with-dependencies.jar',
 						'LDBC_VALIDATION_CONFIG=readwrite_grakn--ldbc_driver_config--db_validation.properties']) {
-					timeout(45) {
+					timeout(90) {
 						dir('generate-SNB') {
 							stage(buildBranch+' Load Validation Data') {
 								sh './load-SNB.sh arch validate'
