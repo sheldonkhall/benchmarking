@@ -12,6 +12,7 @@ import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2Result;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery8;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -103,6 +104,13 @@ public class GraknQueryHandlers {
 
         private <T> T resource(Answer result, Var resource) {
             return result.get(resource).<T>asResource().getValue();
+        }
+    }
+
+    public static class LdbcQuery8Handler implements OperationHandler<LdbcQuery8, GraknDbConnectionState> {
+        @Override
+        public void executeOperation(LdbcQuery8 ldbcQuery8, GraknDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
+
         }
     }
 }
