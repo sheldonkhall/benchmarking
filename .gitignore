@@ -17,3 +17,8 @@ hs_err_pid*
 
 # Mac Files
 .DS_Store
+
+# Compiled files #
+out/
+target/
+*.class
