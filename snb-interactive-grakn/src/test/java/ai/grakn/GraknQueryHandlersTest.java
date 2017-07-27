@@ -3,6 +3,9 @@ package ai.grakn;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery8;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery1PersonProfile;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery2PersonPosts;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +51,7 @@ public class GraknQueryHandlersTest extends TestCase {
 //        when(mockQuery.personId()).thenReturn(28587302322689L);
 //        when(mockQuery.maxDate()).thenReturn(Date.from(Instant.ofEpochMilli(1354060800000L)));
 //        when(mockQuery.limit()).thenReturn(20);
-        
+
         // validation
         when(mockQuery.personId()).thenReturn(4398046511718L);
         when(mockQuery.maxDate()).thenReturn(Date.from(Instant.ofEpochMilli(1290902400000L)));
@@ -56,6 +59,41 @@ public class GraknQueryHandlersTest extends TestCase {
 
         GraknQueryHandlers.LdbcQuery2Handler query2Handler = new GraknQueryHandlers.LdbcQuery2Handler();
         query2Handler.executeOperation(mockQuery,mockConnectionState,mockReporter);
+    }
+
+    @Test
+    public void testQuery8Execution() throws DbException {
+        LdbcQuery8 mockQuery = mock(LdbcQuery8.class);
+
+        // validation
+        when(mockQuery.personId()).thenReturn(1099511628362L);
+        when(mockQuery.limit()).thenReturn(20);
+
+        GraknQueryHandlers.LdbcQuery8Handler query8Handler = new GraknQueryHandlers.LdbcQuery8Handler();
+        query8Handler.executeOperation(mockQuery,mockConnectionState,mockReporter);
+    }
+
+    @Test
+    public void testShortQuery1Execution() throws DbException {
+        LdbcShortQuery1PersonProfile mockQuery = mock(LdbcShortQuery1PersonProfile.class);
+
+        // validation query
+        when(mockQuery.personId()).thenReturn(2199023257132L);
+
+        GraknShortQueryHandlers.LdbcShortQuery1PersonProfileHandler queryHandler = new GraknShortQueryHandlers.LdbcShortQuery1PersonProfileHandler();
+        queryHandler.executeOperation(mockQuery, mockConnectionState, mockReporter);
+    }
+
+    @Test
+    public void testShortQuery2Execution() throws DbException {
+        LdbcShortQuery2PersonPosts mockQuery = mock(LdbcShortQuery2PersonPosts.class);
+
+        // validation query
+        when(mockQuery.personId()).thenReturn(2199023257132L);
+        when(mockQuery.limit()).thenReturn(10);
+
+        GraknShortQueryHandlers.LdbcShortQuery2PersonPostsHandler queryHandler = new GraknShortQueryHandlers.LdbcShortQuery2PersonPostsHandler();
+        queryHandler.executeOperation(mockQuery, mockConnectionState, mockReporter);
     }
 
     @After

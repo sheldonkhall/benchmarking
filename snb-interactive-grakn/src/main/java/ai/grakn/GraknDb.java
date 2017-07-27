@@ -38,6 +38,7 @@ public class GraknDb extends Db {
         registerOperationHandler(LdbcUpdate8AddFriendship.class, GraknUpdateQueryHandlers.LdbcUpdate8AddFriendshipHandler.class);
 
         registerOperationHandler(LdbcQuery2.class, GraknQueryHandlers.LdbcQuery2Handler.class);
+        registerOperationHandler(LdbcQuery8.class, GraknQueryHandlers.LdbcQuery8Handler.class);
 
     }
 
