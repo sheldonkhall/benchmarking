@@ -2,6 +2,7 @@ package ai.grakn;
 
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.ResultReporter;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery13;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery8;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery1PersonProfile;
@@ -71,6 +72,18 @@ public class GraknQueryHandlersTest extends TestCase {
 
         GraknQueryHandlers.LdbcQuery8Handler query8Handler = new GraknQueryHandlers.LdbcQuery8Handler();
         query8Handler.executeOperation(mockQuery,mockConnectionState,mockReporter);
+    }
+
+    @Test
+    public void testQuery13Execution() throws DbException {
+        LdbcQuery13 mockQuery = mock(LdbcQuery13.class);
+
+        // validation
+        when(mockQuery.person1Id()).thenReturn(2979L);
+        when(mockQuery.person2Id()).thenReturn(4398046511979L);
+
+        GraknQueryHandlers.LdbcQuery13Handler query13Handler = new GraknQueryHandlers.LdbcQuery13Handler();
+        query13Handler.executeOperation(mockQuery,mockConnectionState,mockReporter);
     }
 
     @Test

@@ -1,15 +1,18 @@
 package ai.grakn;
 
+import ai.grakn.concept.Concept;
 import ai.grakn.concept.Label;
-import ai.grakn.graql.Graql;
 import ai.grakn.graql.MatchQuery;
 import ai.grakn.graql.Order;
 import ai.grakn.graql.Var;
 import ai.grakn.graql.VarPattern;
 import ai.grakn.graql.admin.Answer;
+import ai.grakn.graql.analytics.PathQuery;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.ResultReporter;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery13;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery13Result;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2Result;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery8;
@@ -17,10 +20,12 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery8Result;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ai.grakn.graql.Graql.compute;
 import static ai.grakn.graql.Graql.lte;
 import static ai.grakn.graql.Graql.match;
 import static ai.grakn.graql.Graql.or;
@@ -43,6 +48,7 @@ public class GraknQueryHandlers {
     static Label personLastName = Label.of("last-name");
     static Label messageContent = Label.of("content");
     static Label messageImageFile = Label.of("image-file");
+    static Label personType = Label.of("person");
 
     static Var thePerson = var("person");
     static Var aMessage = var("aMessage");
@@ -161,6 +167,35 @@ public class GraknQueryHandlers {
                 }).collect(Collectors.toList());
 
                 resultReporter.report(0,result,ldbcQuery8);
+            }
+        }
+    }
+
+    public static class LdbcQuery13Handler implements OperationHandler<LdbcQuery13, GraknDbConnectionState> {
+        @Override
+        public void executeOperation(LdbcQuery13 ldbcQuery13, GraknDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
+            GraknSession session = dbConnectionState.session();
+            try (GraknGraph graknGraph = session.open(GraknTxType.READ)) {
+                MatchQuery matchQuery = match(thePerson.has(personID,var().val(ldbcQuery13.person1Id())));
+                Concept person1 = matchQuery.withGraph(graknGraph).execute().iterator().next().get(thePerson);
+                matchQuery = match(thePerson.has(personID,var().val(ldbcQuery13.person2Id())));
+                Concept person2 = matchQuery.withGraph(graknGraph).execute().iterator().next().get(thePerson);
+
+                PathQuery pathQuery = compute().path().from(person1.getId()).to(person2.getId())
+                        .in("knows", "person");
+
+                List<Concept> path = pathQuery.withGraph(graknGraph).execute().orElseGet(ArrayList::new);
+
+                // our path is either:
+                //     empty if there is none
+                //     one if source = destination
+                //     2*l+1 where l is the length of the path
+                int l = path.size()-1;
+                LdbcQuery13Result result;
+                if (l<1) {result = new LdbcQuery13Result(l);}
+                else {result = new LdbcQuery13Result(l/2);}
+
+                resultReporter.report(0, result, ldbcQuery13);
             }
         }
     }
