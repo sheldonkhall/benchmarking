@@ -142,6 +142,11 @@ public class GraknQueryHandlersTest extends TestCase {
     @Test
     public void testShortQuery2Execution() throws DbException {
         LdbcShortQuery2PersonPosts mockQuery = mock(LdbcShortQuery2PersonPosts.class);
+        doAnswer(invocationOnMock -> {
+            Object[] args = invocationOnMock.getArguments();
+            ((List) args[1]).forEach(System.out::println);
+            return null;
+        }).when(mockReporter).report(anyInt(),anyList(),any());
 
         // validation query
         when(mockQuery.personId()).thenReturn(2199023257132L);

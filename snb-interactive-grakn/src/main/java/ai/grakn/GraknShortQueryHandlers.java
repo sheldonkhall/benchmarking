@@ -148,14 +148,10 @@ public class GraknShortQueryHandlers {
             try (GraknGraph graph = session.open(GraknTxType.READ)) {
 
                 String query = "match " +
-                        "$person isa person; " +
-                        "( $person,  $personId) isa key-person-id; " +
-                        "$personId val " + operation.personId() + "; " +
+                        "$person has person-id " + operation.personId() + "; " +
                         "$rel ($person, $friend) isa knows; " +
-                        "( $rel,  $date) isa has-creation-date; " +
-                        "( $friend,  $friendId) isa key-person-id; " +
-                        "( $friend,  $fname) isa has-first-name; " +
-                        "( $friend,  $lname) isa has-last-name;";
+                        "$rel has creation-date  $date; " +
+                        "$friend has person-id $friendId has first-name $fname has last-name $lname;";
 
 
                 List<Answer> results = graph.graql().<MatchQuery>parse(query).execute();
