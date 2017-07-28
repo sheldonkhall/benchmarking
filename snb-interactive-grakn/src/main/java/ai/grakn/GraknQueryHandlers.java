@@ -1,6 +1,8 @@
 package ai.grakn;
 
 import ai.grakn.concept.Concept;
+import ai.grakn.concept.ConceptId;
+import ai.grakn.concept.Entity;
 import ai.grakn.concept.Label;
 import ai.grakn.graql.MatchQuery;
 import ai.grakn.graql.Order;
@@ -11,8 +13,10 @@ import ai.grakn.graql.analytics.PathQuery;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.ResultReporter;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery1;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery13;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery13Result;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery1Result;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2Result;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery8;
@@ -42,19 +46,27 @@ public class GraknQueryHandlers {
     static VarPattern reply = var().label("reply");
 
     static Label personID = Label.of("person-id");
-    static Label messageDate = Label.of("creation-date");
+    static Label creationDate = Label.of("creation-date");
     static Label messageID = Label.of("message-id");
     static Label personFirstName = Label.of("first-name");
     static Label personLastName = Label.of("last-name");
     static Label messageContent = Label.of("content");
     static Label messageImageFile = Label.of("image-file");
-    static Label personType = Label.of("person");
+    static Label personBirthday = Label.of("birth-day");
+    static Label gender = Label.of("gender");
+    static Label browserUsed = Label.of("browser-used");
+    static Label locationIp = Label.of("location-ip");
+
 
     static Var thePerson = var("person");
     static Var aMessage = var("aMessage");
     static Var aMessageDate = var("aMessageDate");
     static Var aMessageId = var("aMessageID");
     static Var someContent = var("content");
+    static Var aFriend = var("aFriend");
+    static Var aFriendId = var("aFriendID");
+    static Var aFriendLastName = var("aFriendLastName");
+    static Var aFriendGender = var("aFriendGender");
 
     // method to get the value of a resource from an answer
     private static <T> T resource(Answer result, Var resource) {
@@ -70,10 +82,7 @@ public class GraknQueryHandlers {
         public void executeOperation(LdbcQuery2 ldbcQuery2, GraknDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             GraknSession session = dbConnectionState.session();
             try (GraknGraph graknGraph = session.open(GraknTxType.READ)) {
-                Var aFriend = var("aFriend");
-                Var aFriendId = var("aFriendID");
                 Var aFriendFirstName = var("aFriendFirstName");
-                Var aFriendLastName = var("aFriendLastName");
                 LocalDateTime maxDate = LocalDateTime.ofInstant(ldbcQuery2.maxDate().toInstant(), ZoneOffset.UTC);
 
                 // to make this query execute faster split it into two parts:
@@ -82,7 +91,7 @@ public class GraknQueryHandlers {
                 MatchQuery graknLdbcQuery2 = match(
                         var().rel(thePerson.has(personID, var().val(ldbcQuery2.personId()))).rel(aFriend).isa(knowsType),
                         var().rel(aFriend).rel(aMessage).isa(hasCreatorType),
-                        aMessage.has(messageDate, aMessageDate).has(messageID, aMessageId),
+                        aMessage.has(creationDate, aMessageDate).has(messageID, aMessageId),
                         aMessageDate.val(lte(maxDate)));
 
                 List<Answer> rawResult = graknLdbcQuery2.orderBy(aMessageDate, Order.desc)
@@ -99,7 +108,7 @@ public class GraknQueryHandlers {
                     MatchQuery queryExtendedInfo = match(
                             aFriend.has(personFirstName, aFriendFirstName).has(personLastName, aFriendLastName).has(personID, aFriendId),
                             var().rel(aFriend).rel(aMessage).isa(hasCreatorType),
-                            aMessage.has(messageDate, aMessageDate)
+                            aMessage.has(creationDate, aMessageDate)
                                     .has(messageID, var().val(GraknQueryHandlers.<Long>resource(map, aMessageId))),
                             or(aMessage.has(messageContent, someContent), aMessage.has(messageImageFile, someContent)));
                     Answer extendedInfo = queryExtendedInfo.withGraph(graknGraph).execute().iterator().next();
@@ -135,7 +144,7 @@ public class GraknQueryHandlers {
                         thePerson.has(personID, var().val(ldbcQuery8.personId())),
                         var().rel(thePerson).rel(aMessage).isa(hasCreatorType),
                         var().rel(aMessage).rel(reply, aReply).isa(replyOf),
-                        aReply.has(messageDate, aMessageDate).has(messageID, aMessageId)
+                        aReply.has(creationDate, aMessageDate).has(messageID, aMessageId)
                 );
                 List<Answer> rawResult = orderQuery.withGraph(graknGraph)
                         .orderBy(aMessageDate, Order.desc).limit(ldbcQuery8.limit()).execute();
@@ -168,6 +177,80 @@ public class GraknQueryHandlers {
 
                 resultReporter.report(0,result,ldbcQuery8);
             }
+        }
+    }
+
+    public static class LdbcQuery1Handler implements OperationHandler<LdbcQuery1, GraknDbConnectionState> {
+        @Override
+        public void executeOperation(LdbcQuery1 ldbcQuery1, GraknDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
+            GraknSession session = dbConnectionState.session();
+            try (GraknGraph graknGraph = session.open(GraknTxType.READ)) {
+                Var anyone = var("anyone");
+                Var anyoneElse = var("anyoneElse");
+                Var aFriendBirthday = var("aFriendBirthday");
+                Var aFriendCreationDate = var("aFriendCreationDate");
+
+                // for speed fetch the Grakn id first
+                ConceptId graknPersonId = match(thePerson.has(personID, var().val(ldbcQuery1.personId()))).withGraph(graknGraph).
+                        execute().iterator().next().get(thePerson).getId();
+
+                // sort by lastname and then id
+                Comparator<Answer> ugly = Comparator.<Answer>comparingLong(
+                        map -> resource(map, aFriendLastName)).
+                        thenComparingLong(map -> resource(map, aFriendId));
+
+                // This query has to be split into 3 parts, each fetching people a further distance away
+                // The longer queries only need be executed if there are not enough shorter queries
+                // The last ordering by id must be done after each query has been executed
+                MatchQuery matchQuery = match(thePerson.id(graknPersonId),
+                        var().rel(thePerson).rel(aFriend).isa(knowsType),
+                        aFriend.has(personFirstName,var().val(ldbcQuery1.firstName())).
+                                has(personLastName,aFriendLastName).
+                                has(personID, aFriendId),
+                        thePerson.neq(aFriend));
+                List<Answer> distance1Result = matchQuery.withGraph(graknGraph).orderBy(aFriendLastName, Order.asc).execute();
+//                distance1Result.stream().limit(ldbcQuery1.limit()).map(map -> new LdbcQuery1Result(
+//                        resource(map, aFriendId),
+//                        resource(map, aFriendLastName),
+//                        1,
+//                        getSingleDateResource(map.get(aFriend).asEntity(), personBirthday, graknGraph),
+//                        getSingleDateResource(map.get(aFriend).asEntity(), creationDate, graknGraph),
+//                        getSingleResource(map.get(aFriend).asEntity(), gender, graknGraph),
+//                        getSingleResource(map.get(aFriend).asEntity(), browserUsed, graknGraph),
+//                        getSingleResource(map.get(aFriend).asEntity(), locationIp, graknGraph)
+//                ));
+                if (distance1Result.size() < ldbcQuery1.limit()) {
+                    matchQuery = match(thePerson.id(graknPersonId),
+                            var().rel(thePerson).rel(anyone).isa(knowsType),
+                            var().rel(anyone).rel(aFriend).isa(knowsType),
+                            aFriend.has(personFirstName,var().val(ldbcQuery1.firstName())).has(personLastName,aFriendLastName),
+                            thePerson.neq(aFriend)
+                            );
+                    List<Answer> distance2Result = matchQuery.withGraph(graknGraph).orderBy(aFriendLastName, Order.asc).execute();
+                    System.out.println(distance2Result);
+                    if (distance1Result.size() + distance2Result.size() < ldbcQuery1.limit()) {
+                        matchQuery = match(thePerson.id(graknPersonId),
+                                var().rel(thePerson).rel(anyone).isa(knowsType),
+                                var().rel(anyone).rel(anyoneElse).isa(knowsType),
+                                var().rel(anyoneElse).rel(aFriend).isa(knowsType),
+                                aFriend.has(personFirstName,var().val(ldbcQuery1.firstName())).has(personLastName,aFriendLastName),
+                                thePerson.neq(aFriend),
+                                aFriend.neq(anyone)
+                        );
+                        List<Answer> distance3Result = matchQuery.withGraph(graknGraph).orderBy(aFriendLastName, Order.asc).execute();
+                        System.out.println(distance3Result);
+                    }
+                }
+            }
+        }
+
+        private Object getSingleResource(Entity entity, Label resourceType, GraknGraph graknGraph) {
+            return entity.resources(graknGraph.getResourceType(resourceType.toString())).
+                    iterator().next().getValue();
+        }
+        private long getSingleDateResource(Entity entity, Label resourceType, GraknGraph graknGraph) {
+            return ((LocalDateTime) getSingleResource(entity, resourceType, graknGraph)).
+                    toInstant(ZoneOffset.UTC).toEpochMilli();
         }
     }
 

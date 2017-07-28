@@ -2,11 +2,13 @@ package ai.grakn;
 
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.ResultReporter;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery1;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery13;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery8;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery1PersonProfile;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery2PersonPosts;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery3PersonFriends;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +16,12 @@ import org.junit.Test;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,10 +55,11 @@ public class GraknQueryHandlersTest extends TestCase {
     public void testQuery2Execution() throws DbException {
         // mock the query parameters
         LdbcQuery2 mockQuery = mock(LdbcQuery2.class);
-        // SF1
-//        when(mockQuery.personId()).thenReturn(28587302322689L);
-//        when(mockQuery.maxDate()).thenReturn(Date.from(Instant.ofEpochMilli(1354060800000L)));
-//        when(mockQuery.limit()).thenReturn(20);
+        doAnswer(invocationOnMock -> {
+            Object[] args = invocationOnMock.getArguments();
+            ((List) args[1]).forEach(System.out::println);
+            return null;
+        }).when(mockReporter).report(anyInt(),anyList(),any());
 
         // validation
         when(mockQuery.personId()).thenReturn(4398046511718L);
@@ -87,13 +95,47 @@ public class GraknQueryHandlersTest extends TestCase {
     }
 
     @Test
+    public void testQuery1Execution() throws DbException {
+        LdbcQuery1 mockQuery = mock(LdbcQuery1.class);
+
+        // validation
+        when(mockQuery.personId()).thenReturn(1099511628726L);
+        when(mockQuery.firstName()).thenReturn("Ken");
+        when(mockQuery.limit()).thenReturn(20);
+
+        GraknQueryHandlers.LdbcQuery1Handler query1Handler = new GraknQueryHandlers.LdbcQuery1Handler();
+        query1Handler.executeOperation(mockQuery,mockConnectionState,mockReporter);
+    }
+
+    @Test
     public void testShortQuery1Execution() throws DbException {
         LdbcShortQuery1PersonProfile mockQuery = mock(LdbcShortQuery1PersonProfile.class);
+        doAnswer(invocationOnMock -> {
+            Object[] args = invocationOnMock.getArguments();
+            System.out.println(args[1]);
+            return null;
+        }).when(mockReporter).report(anyInt(),any(),any());
 
         // validation query
         when(mockQuery.personId()).thenReturn(2199023257132L);
 
         GraknShortQueryHandlers.LdbcShortQuery1PersonProfileHandler queryHandler = new GraknShortQueryHandlers.LdbcShortQuery1PersonProfileHandler();
+        queryHandler.executeOperation(mockQuery, mockConnectionState, mockReporter);
+    }
+
+    @Test
+    public void testShortQuery3Execution() throws DbException {
+        LdbcShortQuery3PersonFriends mockQuery = mock(LdbcShortQuery3PersonFriends.class);
+        doAnswer(invocationOnMock -> {
+            Object[] args = invocationOnMock.getArguments();
+            ((List) args[1]).forEach(System.out::println);
+            return null;
+        }).when(mockReporter).report(anyInt(),anyList(),any());
+
+        // validation query
+        when(mockQuery.personId()).thenReturn(2199023257132L);
+
+        GraknShortQueryHandlers.LdbcShortQuery3PersonFriendsHandler queryHandler = new GraknShortQueryHandlers.LdbcShortQuery3PersonFriendsHandler();
         queryHandler.executeOperation(mockQuery, mockConnectionState, mockReporter);
     }
 
